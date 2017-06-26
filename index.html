@@ -20,6 +20,16 @@
   <!-- end CSS-->
 
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
+  <script>
+  if(!window.jQuery)
+  {
+    console.log("import jQuery");
+    var script = document.createElement("script");
+	script.type = "text/javascript";
+    script.src = 'js/libs/jquery-1.7.2.min.js';
+	document.getElementsByTagName('head')[0].appendChild(script);
+  }
+  </script>
 </head>
 
 <body>
@@ -76,7 +86,7 @@
 
 
   <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script>
+  
 
 
   <script defer src="js/plugins.js"></script>
