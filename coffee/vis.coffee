@@ -15,7 +15,7 @@ RadialPlacement = () ->
   start = -120
   current = start
 
-  # Given an center point, angle, and radius length,
+  # Given a center point, angle, and radius length,
   # return a radial position for that angle
   radialLocation = (center, angle, radius) ->
     x = (center.x + radius * Math.cos(angle * Math.PI / 180))
@@ -33,6 +33,7 @@ RadialPlacement = () ->
 
   # Gets a new location for input key
   place = (key) ->
+    console.log(radius)
     value = radialLocation(center, current, radius)
     values.set(key,value)
     current += increment
@@ -42,7 +43,7 @@ RadialPlacement = () ->
     value = radialLocation(center, 0, 0) 
     values.set(key, value)
     value
-	
+
   # Given a set of keys, perform some 
   # magic to create a two ringed radial layout.
   # Expects radius, increment, and center to be set.
@@ -50,33 +51,36 @@ RadialPlacement = () ->
   # one circle.
   setKeys = (keys) ->
     # start with an empty values
-    values = d3.map()
+    # values = d3.map()
+
+    # set locations for keys
+    keys.forEach (k) -> placeCenter(k)
+    console.log(values)
   
-    # number of keys to go in first circle
-    firstCircleCount = 360 / increment
-
-    # if we don't have enough keys, modify increment
+  #place nodes in radial layout
+  setRadialKeys = (keys) ->
+    # start with an empty values
+    #values = d3.map()
+    # modify increment
     # so that they all fit in one circle
-    if keys.length < firstCircleCount
+    if(keys.length > 0)
       increment = 360 / keys.length
+      console.log(increment)
 
-    # set locations for inner circle
-    firstCircleKeys = keys.slice(0,firstCircleCount)
-    firstCircleKeys.forEach (k) -> placeCenter(k)
-
-    # set locations for outer circle
-    secondCircleKeys = keys.slice(firstCircleCount)
-
-    # setup outer circle
-    radius = radius + radius / 1.8
-    increment = 360 / secondCircleKeys.length
-
-    secondCircleKeys.forEach (k) -> place(k)
-
+    # set locations for circle
+    keys.forEach (k) -> place(k)
+    console.log(values)
+  
   placement.keys = (_) ->
     if !arguments.length
       return d3.keys(values)
     setKeys(_)
+    placement
+
+  placement.radialKeys = (_) ->
+    if !arguments.length
+      return d3.keys(values)
+    setRadialKeys(_)
     placement
 
   placement.center = (_) ->
@@ -141,7 +145,7 @@ Network = () ->
   tooltip = Tooltip("vis-tooltip", 230)
 
   # charge used in artist layout
-  charge = (node) -> -Math.pow(node.radius, 2.0) / 2
+  charge = (node) -> -Math.pow(node.radius, 2.0)/2
 
   # Starting point for network visualization
   # Initializes visualization and starts force layout
@@ -179,8 +183,12 @@ Network = () ->
     # sort nodes based on current sort and update centers for
     # radial layout
     if layout == "radial"
-      artists = sortedArtists(curNodesData, curLinksData)
-      updateCenters(artists)
+      registerNodes = registers(curNodesData)
+      registerLinks = filterLinks(curLinksData, registerNodes)
+      registerKeys = sortedRegisters(registerNodes, registerLinks)
+      comboNodes = combinationals(curNodesData)
+      comboKeys = comboNodes.map (n) -> n.id
+      updateCenters(registerKeys, comboKeys)
 
     # reset nodes in force layout
     force.nodes(curNodesData)
@@ -237,7 +245,7 @@ Network = () ->
         d.searched = true
       else
         d.searched = false
-        element.style("fill", (d) -> nodeColors(d.artist))
+        element.style("fill", (d) -> nodeColors(d.type))
           .style("stroke-width", 1.0)
 
   network.updateData = (newData) ->
@@ -251,8 +259,8 @@ Network = () ->
   # Returns modified data
   setupData = (data) ->
     # initialize circle radius scale
-    countExtent = d3.extent(data.nodes, (d) -> d.playcount)
-    circleRadius = d3.scale.sqrt().range([3, 12]).domain(countExtent)
+    countExtent = d3.extent(data.nodes, (d) -> d.size)
+    circleRadius = d3.scale.sqrt().range([3,12]).domain(countExtent)
 
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
@@ -260,16 +268,19 @@ Network = () ->
       n.x = randomnumber=Math.floor(Math.random()*width)
       n.y = randomnumber=Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
-      n.radius = circleRadius(n.playcount)
+      n.radius = circleRadius(n.size)
 
     # id's -> node objects
     nodesMap  = mapNodes(data.nodes)
+
+    linkExtent = d3.extent(data.links, (d) -> d.delay)
+    linkDistance = d3.scale.sqrt().range([10, 50]).domain(linkExtent)
 
     # switch links to point to node objects instead of id's
     data.links.forEach (l) ->
       l.source = nodesMap.get(l.source)
       l.target = nodesMap.get(l.target)
-
+      l.linkDistance = linkDistance(l.delay)
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
 
@@ -344,11 +355,42 @@ Network = () ->
       artists = artists.map (v) -> v.key
 
     artists
+  sortedRegisters = (nodes, links) ->
+    regs = []
+    if sort == "links"
+      counts = {}
+      links.forEach (l) ->
+        counts[l.source.id] ?= 0
+        counts[l.source.id] += 1
+        counts[l.target.id] ?= 0
+        counts[l.target.id] += 1
+      # add any missing artists that dont have any links
+      nodes.forEach (n) ->
+        counts[n.id] ?= 0
+      #sort based on counts
+      regs = d3.entries(counts).sort (a,b) ->
+        b.value - a.value
+      regs = regs.map (v) -> v.key
+    else
+      # sort registers by size
+      sortedNodes = nodes.sort (a,b) ->
+        b.size - a.size
+      sortedNodes.forEach (n) ->
+        regs.push(n.id)
+    regs
+  
+  registers = (nodes) ->
+    regs = nodes.filter (d) -> d.type == "register"
+    regs
 
-  updateCenters = (artists) ->
+  combinationals = (nodes) ->
+    combs = nodes.filter (d) -> d.type != "register"
+    combs
+
+  updateCenters = (registerKeys, combinationalKeys) ->
     if layout == "radial"
       groupCenters = RadialPlacement().center({"x":width/2, "y":height / 2 - 100})
-        .radius(300).increment(18).keys(artists)
+        .radius(300).keys(combinationalKeys).radialKeys(registerKeys)
 
   # Removes links from allLinks whose
   # source or target is not present in curNodes
@@ -368,7 +410,7 @@ Network = () ->
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
       .attr("r", (d) -> d.radius)
-      .style("fill", (d) -> nodeColors(d.artist))
+      .style("fill", (d) -> nodeColors(d.type))
       .style("stroke", (d) -> strokeFor(d))
       .style("stroke-width", 1.0)
 
@@ -397,11 +439,12 @@ Network = () ->
     layout = newLayout
     if layout == "force"
       force.on("tick", forceTick)
-        .charge(-200)
-        .linkDistance(50)
+        .charge(-200)#-200
+        .linkDistance((l) -> l.linkDistance)
     else if layout == "radial"
       force.on("tick", radialTick)
         .charge(charge)
+        .linkDistance((l) -> l.linkDistance)
 
   # switches filter option to new filter
   setFilter = (newFilter) ->
@@ -441,7 +484,7 @@ Network = () ->
   moveToRadialLayout = (alpha) ->
     k = alpha * 0.1
     (d) ->
-      centerNode = groupCenters(d.artist)
+      centerNode = groupCenters(d.id)
       d.x += (centerNode.x - d.x) * k
       d.y += (centerNode.y - d.y) * k
 
@@ -449,13 +492,13 @@ Network = () ->
   # Helper function that returns stroke color for
   # particular node.
   strokeFor = (d) ->
-    d3.rgb(nodeColors(d.artist)).darker().toString()
+    d3.rgb(nodeColors(d.type)).darker().toString()
 
   # Mouseover tooltip function
   showDetails = (d,i) ->
     content = '<p class="main">' + d.name + '</span></p>'
     content += '<hr class="tooltip-hr">'
-    content += '<p class="main">' + d.artist + '</span></p>'
+    content += '<p class="main">' + d.size + '</span></p>'
     tooltip.showTooltip(content,d3.event)
 
     # higlight connected links
@@ -527,5 +570,5 @@ $ ->
     searchTerm = $(this).val()
     myNetwork.updateSearch(searchTerm)
 
-  d3.json "data/call_me_al.json", (json) ->
+  d3.json "data/digital_logic_template.json", (json) ->
     myNetwork("#vis", json)
