@@ -1,6 +1,21 @@
 
 root = exports ? this
 
+type = (obj) ->
+  if obj == undefined or obj == null
+    return String obj
+  classToType = {
+    '[object Boolean]': 'boolean',
+    '[object Number]': 'number',
+    '[object String]': 'string',
+    '[object Function]': 'function',
+    '[object Array]': 'array',
+    '[object Date]': 'date',
+    '[object RegExp]': 'regexp',
+    '[object Object]': 'object'
+  }
+  return classToType[Object.prototype.toString.call(obj)]
+
 # Help with the placement of nodes
 RadialPlacement = () ->
   # stores the key -> location values
@@ -33,7 +48,6 @@ RadialPlacement = () ->
 
   # Gets a new location for input key
   place = (key) ->
-    console.log(radius)
     value = radialLocation(center, current, radius)
     values.set(key,value)
     current += increment
@@ -55,7 +69,6 @@ RadialPlacement = () ->
 
     # set locations for keys
     keys.forEach (k) -> placeCenter(k)
-    console.log(values)
   
   #place nodes in radial layout
   setRadialKeys = (keys) ->
@@ -65,11 +78,9 @@ RadialPlacement = () ->
     # so that they all fit in one circle
     if(keys.length > 0)
       increment = 360 / keys.length
-      console.log(increment)
 
     # set locations for circle
     keys.forEach (k) -> place(k)
-    console.log(values)
   
   placement.keys = (_) ->
     if !arguments.length
@@ -184,7 +195,7 @@ Network = () ->
     # radial layout
     if layout == "radial"
       registerNodes = registers(curNodesData)
-      registerLinks = filterLinks(curLinksData, registerNodes)
+      registerLinks = filterAdjacentLinks(curLinksData, registerNodes)
       registerKeys = sortedRegisters(registerNodes, registerLinks)
       comboNodes = combinationals(curNodesData)
       comboKeys = comboNodes.map (n) -> n.id
@@ -259,16 +270,21 @@ Network = () ->
   # Returns modified data
   setupData = (data) ->
     # initialize circle radius scale
-    countExtent = d3.extent(data.nodes, (d) -> d.size)
-    circleRadius = d3.scale.sqrt().range([3,12]).domain(countExtent)
-
+    sizeMin = d3.min(data.nodes, (d) -> if d.size then d.size else Number.MAX_SAFE_INTEGER)
+    sizeMax = d3.max(data.nodes, (d) -> if d.size then d.size else Number.MIN_SAFE_INTEGER)
+    sizeAverage = (sizeMax - sizeMin) / 2
+    sizeExtent = [sizeMin, sizeMax]#d3.extent(data.nodes, (d) -> d.size)
+    circleRadius = d3.scale.sqrt().range([3,12]).domain(sizeExtent)
+    
+	
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
       # of the visualization
       n.x = randomnumber=Math.floor(Math.random()*width)
       n.y = randomnumber=Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
-      n.radius = circleRadius(n.size)
+      size = if n.size then n.size else sizeAverage
+      n.radius = circleRadius(size)
 
     # id's -> node objects
     nodesMap  = mapNodes(data.nodes)
@@ -278,8 +294,8 @@ Network = () ->
 
     # switch links to point to node objects instead of id's
     data.links.forEach (l) ->
-      l.source = nodesMap.get(l.source)
-      l.target = nodesMap.get(l.target)
+      l.source = if type(l.source) == 'number' then data.nodes[l.source] else nodesMap.get(l.source)
+      l.target = if type(l.target) == 'number' then data.nodes[l.target] else nodesMap.get(l.target)
       l.linkDistance = linkDistance(l.delay)
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
@@ -360,10 +376,12 @@ Network = () ->
     if sort == "links"
       counts = {}
       links.forEach (l) ->
-        counts[l.source.id] ?= 0
-        counts[l.source.id] += 1
-        counts[l.target.id] ?= 0
-        counts[l.target.id] += 1
+        if l.source in nodes
+          counts[l.source.id] ?= 0
+          counts[l.source.id] += 1
+        if l.target in nodes
+          counts[l.target.id] ?= 0
+          counts[l.target.id] += 1
       # add any missing artists that dont have any links
       nodes.forEach (n) ->
         counts[n.id] ?= 0
@@ -374,7 +392,7 @@ Network = () ->
     else
       # sort registers by size
       sortedNodes = nodes.sort (a,b) ->
-        b.size - a.size
+        b.radius - a.radius
       sortedNodes.forEach (n) ->
         regs.push(n.id)
     regs
@@ -400,6 +418,10 @@ Network = () ->
     allLinks.filter (l) ->
       curNodes.get(l.source.id) and curNodes.get(l.target.id)
 
+  filterAdjacentLinks = (allLinks, curNodes) ->
+    curNodes = mapNodes(curNodes)
+    allLinks.filter (l) ->
+      curNodes.get(l.source.id) or curNodes.get(l.target.id)
   # enter/exit display for nodes
   updateNodes = () ->
     node = nodesG.selectAll("circle.node")
@@ -496,9 +518,9 @@ Network = () ->
 
   # Mouseover tooltip function
   showDetails = (d,i) ->
-    content = '<p class="main">' + d.name + '</span></p>'
+    content = '<p class="main">' + if d.name then d.name else d.id + '</span></p>'
     content += '<hr class="tooltip-hr">'
-    content += '<p class="main">' + d.size + '</span></p>'
+    content += '<p class="main">' + if d.size then d.size else '-' + '</span></p>'
     tooltip.showTooltip(content,d3.event)
 
     # higlight connected links
@@ -569,6 +591,5 @@ $ ->
   $("#search").keyup () ->
     searchTerm = $(this).val()
     myNetwork.updateSearch(searchTerm)
-
-  d3.json "data/digital_logic_template.json", (json) ->
+  d3.json "data/digital_logic_template2.json", (json) ->
     myNetwork("#vis", json)

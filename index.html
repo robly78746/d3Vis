@@ -23,11 +23,11 @@
   <script>
   if(!window.jQuery)
   {
-    console.log("import jQuery");
     var script = document.createElement("script");
 	script.type = "text/javascript";
     script.src = 'js/libs/jquery-1.7.2.min.js';
 	document.getElementsByTagName('head')[0].appendChild(script);
+	console.log('imported jQuery')
   }
   </script>
 </head>
@@ -43,7 +43,7 @@
       <div id="song_selection" class="control">
         <h3>Song</h3>
         <select id="song_select">
-		  <option value="digital_logic_template.json">Digital Logic Circuit</option>
+		  <option value="digital_logic_template2.json">Digital Logic Circuit</option>
           <option value="call_me_al.json">You Can Call Me Al</option>
           <option value="sledgehammer_2_rounds.json">Sledgehammer</option>
           <option value="poker_face.json">Poker Face</option>
