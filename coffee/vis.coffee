@@ -66,7 +66,6 @@ RadialPlacement = () ->
   setKeys = (keys) ->
     # start with an empty values
     # values = d3.map()
-
     # set locations for keys
     keys.forEach (k) -> placeCenter(k)
   
@@ -270,36 +269,43 @@ Network = () ->
   # Returns modified data
   setupData = (data) ->
     # initialize circle radius scale
-    sizeMin = d3.min(data.nodes, (d) -> if d.size then d.size else Number.MAX_SAFE_INTEGER)
-    sizeMax = d3.max(data.nodes, (d) -> if d.size then d.size else Number.MIN_SAFE_INTEGER)
+    sizeMin = d3.min(data.nodes, (d) -> if d.size? then d.size else Number.MAX_SAFE_INTEGER)
+    sizeMax = d3.max(data.nodes, (d) -> if d.size? then d.size else Number.MIN_SAFE_INTEGER)
     sizeAverage = (sizeMax - sizeMin) / 2
     sizeExtent = [sizeMin, sizeMax]#d3.extent(data.nodes, (d) -> d.size)
     circleRadius = d3.scale.sqrt().range([3,12]).domain(sizeExtent)
-    
-	
+
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
       # of the visualization
-      n.x = randomnumber=Math.floor(Math.random()*width)
-      n.y = randomnumber=Math.floor(Math.random()*height)
+      console.log(data.nodes)
+      n.x = randomnumber = Math.floor(Math.random()*width)
+      console.log(data.nodes)
+      n.y = randomnumber = Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
-      size = if n.size then n.size else sizeAverage
+      size = if n.size? then n.size else sizeAverage
       n.radius = circleRadius(size)
-
+    
     # id's -> node objects
-    nodesMap  = mapNodes(data.nodes)
+    nodesMap = mapNodes(data.nodes)
 
-    linkExtent = d3.extent(data.links, (d) -> d.delay)
-    linkDistance = d3.scale.sqrt().range([10, 50]).domain(linkExtent)
+    #linkExtent = d3.extent(data.links, (d) -> d.delay)
+    delayMin = d3.min(data.links, (d) -> if d.delay? then d.delay else Number.MAX_SAFE_INTEGER)
+    delayMax = d3.max(data.links, (d) -> if d.delay? then d.delay else Number.MIN_SAFE_INTEGER)
+    delayAverage = (delayMax - delayMin) / 2
+    delayExtent = [delayMin, delayMax]
+    linkDistance = d3.scale.sqrt().range([10, 50]).domain(delayExtent)
 
     # switch links to point to node objects instead of id's
     data.links.forEach (l) ->
-      l.source = if type(l.source) == 'number' then data.nodes[l.source] else nodesMap.get(l.source)
-      l.target = if type(l.target) == 'number' then data.nodes[l.target] else nodesMap.get(l.target)
-      l.linkDistance = linkDistance(l.delay)
+      key = if type(l.source) == 'number' then data.nodes[l.source].id else l.source
+      l.source =  nodesMap.get(key)
+      key = if type(l.target) == 'number' then data.nodes[l.target].id else l.target
+      l.target = nodesMap.get(key)
+      delay = if l.delay? then l.delay else delayAverage
+      l.linkDistance = linkDistance(delay)
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
-
     data
 
   # Helper function to map node id's to node objects.
@@ -453,7 +459,6 @@ Network = () ->
       .attr("y1", (d) -> d.source.y)
       .attr("x2", (d) -> d.target.x)
       .attr("y2", (d) -> d.target.y)
-
     link.exit().remove()
 
   # switches force to new layout parameters
@@ -514,7 +519,7 @@ Network = () ->
   # Helper function that returns stroke color for
   # particular node.
   strokeFor = (d) ->
-    d3.rgb(nodeColors(d.type)).darker().toString()
+    d3.rgb(nodeColors(if d.type then d.type else d.id)).darker().toString()
 
   # Mouseover tooltip function
   showDetails = (d,i) ->
