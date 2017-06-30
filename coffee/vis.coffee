@@ -1,6 +1,4 @@
-
 root = exports ? this
-
 type = (obj) ->
   if obj == undefined or obj == null
     return String obj
@@ -278,9 +276,7 @@ Network = () ->
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
       # of the visualization
-      console.log(data.nodes)
       n.x = randomnumber = Math.floor(Math.random()*width)
-      console.log(data.nodes)
       n.y = randomnumber = Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
       size = if n.size? then n.size else sizeAverage
@@ -587,6 +583,16 @@ $ ->
     newSort = d3.select(this).attr("id")
     activate("sorts", newSort)
     myNetwork.toggleSort(newSort)
+
+  updateGraphOptions = (options) ->
+    console.log("updating graph options")
+    console.log(options)
+    select = d3.select("#song_select").selectAll("option").data(options.graphs).attr("value", (d) -> d).text((d) -> d)
+    select.enter().append("option").attr("value", (d) -> d).text((d) -> d)
+    select.exit().remove()
+  d3.json "data/data.json", (json) ->
+    console.log("data called")
+    updateGraphOptions(json)
 
   $("#song_select").on "change", (e) ->
     songFile = $(this).val()
