@@ -155,6 +155,12 @@ Network = () ->
   # charge used in artist layout
   charge = (node) -> -Math.pow(node.radius, 2.0)/2
 
+  # radius used in radial layout
+  radialLayoutRadius = 300
+
+  # radius multiplier used to enlarge/shrink radius of node to display
+  radiusMultiplier = 1
+
   # Starting point for network visualization
   # Initializes visualization and starts force layout
   network = (selection, data) ->
@@ -237,6 +243,26 @@ Network = () ->
   network.toggleSort = (newSort) ->
     force.stop()
     setSort(newSort)
+    update()
+
+  network.setCharge = (newCharge) ->
+    force.stop()
+    setCharge(newCharge)
+    update()
+
+  network.setLinkDistance = (newLinkDistance) ->
+    force.stop()
+    setLinkDistance(newLinkDistance)
+    update()
+
+  network.setRadialLayoutRadius = (newRadius) ->
+    force.stop()
+    setRadialLayoutRadius(newRadius)
+    update()
+
+  network.setRadiusMultiplier = (newRadiusMultiplier) ->
+    force.stop()
+    setRadiusMultiplier(newRadiusMultiplier)
     update()
 
   # Public function to update highlighted nodes
@@ -410,7 +436,7 @@ Network = () ->
   updateCenters = (registerKeys, combinationalKeys) ->
     if layout == "radial"
       groupCenters = RadialPlacement().center({"x":width/2, "y":height / 2 - 100})
-        .radius(300).keys(combinationalKeys).radialKeys(registerKeys)
+        .radius(radialLayoutRadius).keys(combinationalKeys).radialKeys(registerKeys)
 
   # Removes links from allLinks whose
   # source or target is not present in curNodes
@@ -427,13 +453,12 @@ Network = () ->
   # enter/exit display for nodes
   updateNodes = () ->
     node = nodesG.selectAll("circle.node")
-      .data(curNodesData, (d) -> d.id)
-
+      .data(curNodesData, (d) -> d.id).attr("r", (d) -> d.radius * radiusMultiplier)
     node.enter().append("circle")
       .attr("class", "node")
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
-      .attr("r", (d) -> d.radius)
+      .attr("r", (d) -> d.radius * radiusMultiplier)
       .style("fill", (d) -> nodeColors(d.type))
       .style("stroke", (d) -> strokeFor(d))
       .style("stroke-width", 1.0)
@@ -476,6 +501,18 @@ Network = () ->
   # switches sort option to new sort
   setSort = (newSort) ->
     sort = newSort
+
+  setCharge = (newCharge) ->
+    force.charge(newCharge)
+
+  setLinkDistance = (newLinkDistance) ->
+    force.linkDistance(newLinkDistance)
+
+  setRadialLayoutRadius = (newRadialLayoutRadius) ->
+    radialLayoutRadius = newRadialLayoutRadius
+
+  setRadiusMultiplier = (newRadiusMultiplier) ->
+    radiusMultiplier = newRadiusMultiplier
 
   # tick function for force directed layout
   forceTick = (e) ->
@@ -566,6 +603,18 @@ activate = (group, link) ->
   d3.selectAll("##{group} a").classed("active", false)
   d3.select("##{group} ##{link}").classed("active", true)
 
+showRadialInput = ->
+  $("#layoutRadius").show()
+
+hideRadialInput = ->
+  $("#layoutRadius").hide()
+
+showHideRadialLayoutInput = (layout) ->
+  if layout == "radial"
+    showRadialInput()
+  else
+    hideRadialInput()
+
 $ ->
   myNetwork = Network()
 
@@ -573,6 +622,9 @@ $ ->
     newLayout = d3.select(this).attr("id")
     activate("layouts", newLayout)
     myNetwork.toggleLayout(newLayout)
+    showHideRadialLayoutInput(newLayout)
+
+  showHideRadialLayoutInput(myNetwork.layout)
 
   d3.selectAll("#filters a").on "click", (d) ->
     newFilter = d3.select(this).attr("id")
@@ -593,6 +645,22 @@ $ ->
   d3.json "data/data.json", (json) ->
     console.log("data called")
     updateGraphOptions(json)
+
+  $("#charge").on "input", (e) ->
+    newCharge = $(this).val()
+    myNetwork.setCharge(newCharge * -1)
+
+  $("#linkDistance").on "input", (e) ->
+    newLinkDistance = $(this).val()
+    myNetwork.setLinkDistance(newLinkDistance)
+
+  $("#radiusMultiplier").on "input", (e) ->
+    newRadiusMultiplier = $(this).val()
+    myNetwork.setRadiusMultiplier(newRadiusMultiplier / 100.0)
+
+  $("#layoutRadiusInput").on "input", (e) ->
+    newRadius = $(this).val()
+    myNetwork.setRadialLayoutRadius(newRadius)
 
   $("#song_select").on "change", (e) ->
     songFile = $(this).val()

@@ -18,6 +18,8 @@ import sys
 #file pattern matching
 import glob
 
+import graphviz
+
 def filesWithExtensions(folderPath, extensions):
     files = []
     for extension in extensions:
@@ -36,8 +38,9 @@ if len(sys.argv) == 3:
     dotFiles = filesWithExtensions(dotFolderPath, dotFileExtensions)
     counter = 0
     for dotFile in dotFiles:
-        dot_graph = read_dot(dotFolderPath + '/' + dotFile)
-        graph_json = json_graph.node_link_data(dot_graph)
+        dot_graph = graphviz.AGraph(dotFolderPath + '/' + dotFile)
+        graph_netx = networkx.from_agraph(dot_graph)
+        graph_json = json_graph.node_link_data(graph_netx)
         filename = dotFile[:dotFile.rfind('.')]
         json.dump(graph_json,open(jsonFolderPath + '/' + filename + '.json','w'),indent=2)
         counter += 1

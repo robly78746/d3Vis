@@ -41,17 +41,8 @@
     </header>
 
       <div id="song_selection" class="control">
-        <h3>Song</h3>
+        <h3>Graph</h3>
         <select id="song_select">
-		  <option value="digital_logic_template2.json">Digital Logic Circuit</option>
-          <option value="call_me_al.json">You Can Call Me Al</option>
-          <option value="sledgehammer_2_rounds.json">Sledgehammer</option>
-          <option value="poker_face.json">Poker Face</option>
-          <option value="jolene.json">Jolene</option>
-          <option value="helplessness_blues.json">Helplessness Blues</option>
-          <option value="she_said.json">She Said She Said</option>
-          <option value="short_skirt.json">Short Skirt, Long Jacket</option>
-		  <option value="simpleGraph.json">Simple Graph</option>
         </select>
 
       </div>
@@ -59,7 +50,7 @@
       <div id="layouts" class="control">
         <h3>Layout</h3>
         <a id="force" class="active">Force Directed</a>
-        <a id="radial">Artists</a>
+        <a id="radial">Radial</a>
       </div>
       <div id="filters" class="control">
         <h3>Filter</h3>
@@ -69,12 +60,20 @@
       </div>
       <div id="sorts" class="control">
         <h3>Sort</h3>
-        <a id="songs" class="active">Songs</a>
+        <a id="songs" class="active">Size</a>
         <a id="links">Links</a>
       </div>
       <div id="search_section" class="control">
         <form id="search_form" action=""  method="post">
           <p class="search_title">Search <input type="text" class="text-input" id="search" value="" /></p>
+        </form>
+      </div>
+	  <div id="config_section" class="control">
+        <form id="config_form" action=""  method="post">
+          <p class="search_title">Charge <input type="range" class="text-input" id="charge" min="0" max="300" value="" /></p>
+		  <p class="search_title">Link Distance <input type="range" class="text-input" id="linkDistance" min="0" max="100" value="" /></p><br>
+		  <p class="search_title">Radius Multiplier<input type="range" class="text-input" id="radiusMultiplier" min="1" max="500" value="" /></p>
+		  <p class="search_title" id="layoutRadius">Layout Radius <input type="range" class="text-input" id="layoutRadiusInput" min="1" max="500" value="" /></p>
         </form>
       </div>
     <div id="main" role="main">
