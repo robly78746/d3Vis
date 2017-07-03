@@ -5,6 +5,7 @@
 import networkx as nx
 from networkx.readwrite import json_graph
 from networkx.drawing.nx_pydot import read_dot
+from networkx.drawing.nx_agraph import from_agraph
 
 #dump json into file
 import json
@@ -19,6 +20,8 @@ import sys
 import glob
 
 import graphviz
+import pygraphviz as pgv
+from pygraphviz.agraph import DotError
 
 def filesWithExtensions(folderPath, extensions):
     files = []
@@ -38,9 +41,16 @@ if len(sys.argv) == 3:
     dotFiles = filesWithExtensions(dotFolderPath, dotFileExtensions)
     counter = 0
     for dotFile in dotFiles:
-        dot_graph = graphviz.AGraph(dotFolderPath + '/' + dotFile)
-        graph_netx = networkx.from_agraph(dot_graph)
-        graph_json = json_graph.node_link_data(graph_netx)
+        dotFilePath = dotFolderPath + '/' + dotFile
+        try:
+            dot_graph = pgv.AGraph(dotFilePath)
+            graph_netx = from_agraph(dot_graph)
+        except (ValueError, DotError) as e:
+            graph_netx = read_dot(dotFilePath)
+            #print(dotFile + ' not in graphviz format')
+            #continue
+        
+        graph_json = json_graph.node_link_data(graph_netx)#dot_graph)
         filename = dotFile[:dotFile.rfind('.')]
         json.dump(graph_json,open(jsonFolderPath + '/' + filename + '.json','w'),indent=2)
         counter += 1

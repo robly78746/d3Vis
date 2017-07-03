@@ -247,7 +247,8 @@ Network = () ->
 
   network.setCharge = (newCharge) ->
     force.stop()
-    setCharge(newCharge)
+    charge = (node) -> -Math.pow(node.radius, 2.0)/newCharge
+    setCharge(charge)
     update()
 
   network.setLinkDistance = (newLinkDistance) ->
@@ -293,8 +294,8 @@ Network = () ->
   # Returns modified data
   setupData = (data) ->
     # initialize circle radius scale
-    sizeMin = d3.min(data.nodes, (d) -> if d.size? then d.size else Number.MAX_SAFE_INTEGER)
-    sizeMax = d3.max(data.nodes, (d) -> if d.size? then d.size else Number.MIN_SAFE_INTEGER)
+    sizeMin = d3.min(data.nodes, (d) -> if d.size? then parseInt(d.size, 10) else Number.MAX_SAFE_INTEGER)
+    sizeMax = d3.max(data.nodes, (d) -> if d.size? then parseInt(d.size, 10) else Number.MIN_SAFE_INTEGER)
     sizeAverage = (sizeMax - sizeMin) / 2
     sizeExtent = [sizeMin, sizeMax]#d3.extent(data.nodes, (d) -> d.size)
     circleRadius = d3.scale.sqrt().range([3,12]).domain(sizeExtent)
@@ -312,8 +313,8 @@ Network = () ->
     nodesMap = mapNodes(data.nodes)
 
     #linkExtent = d3.extent(data.links, (d) -> d.delay)
-    delayMin = d3.min(data.links, (d) -> if d.delay? then d.delay else Number.MAX_SAFE_INTEGER)
-    delayMax = d3.max(data.links, (d) -> if d.delay? then d.delay else Number.MIN_SAFE_INTEGER)
+    delayMin = d3.min(data.links, (d) -> if d.delay? then parseInt(d.delay, 10) else Number.MAX_SAFE_INTEGER)
+    delayMax = d3.max(data.links, (d) -> if d.delay? then parseInt(d.delay, 10) else Number.MIN_SAFE_INTEGER)
     delayAverage = (delayMax - delayMin) / 2
     delayExtent = [delayMin, delayMax]
     linkDistance = d3.scale.sqrt().range([10, 50]).domain(delayExtent)
@@ -487,7 +488,7 @@ Network = () ->
     layout = newLayout
     if layout == "force"
       force.on("tick", forceTick)
-        .charge(-200)#-200
+        .charge(charge)#-200
         .linkDistance((l) -> l.linkDistance)
     else if layout == "radial"
       force.on("tick", radialTick)
@@ -648,7 +649,7 @@ $ ->
 
   $("#charge").on "input", (e) ->
     newCharge = $(this).val()
-    myNetwork.setCharge(newCharge * -1)
+    myNetwork.setCharge(newCharge / 100.0)
 
   $("#linkDistance").on "input", (e) ->
     newLinkDistance = $(this).val()
