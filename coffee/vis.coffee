@@ -161,6 +161,9 @@ Network = () ->
   # radius multiplier used to enlarge/shrink radius of node to display
   radiusMultiplier = 1
 
+  linkDistanceMultiplier = 1
+  linkStrengthValue = 1
+
   # Starting point for network visualization
   # Initializes visualization and starts force layout
   network = (selection, data) ->
@@ -218,7 +221,7 @@ Network = () ->
       # reset links so they do not interfere with
       # other layouts. updateLinks() will be called when
       # force is done animating.
-      force.links([])
+      force.links(curLinksData)
       # if present, remove them from svg 
       if link
         link.data([]).exit().remove()
@@ -247,13 +250,17 @@ Network = () ->
 
   network.setCharge = (newCharge) ->
     force.stop()
-    charge = (node) -> -Math.pow(node.radius, 2.0)/newCharge
-    setCharge(charge)
+    setCharge(newCharge)
     update()
 
-  network.setLinkDistance = (newLinkDistance) ->
+  network.setLinkDistance = (newLinkDistanceMultiplier) ->
     force.stop()
-    setLinkDistance(newLinkDistance)
+    setLinkDistance(newLinkDistanceMultiplier)
+    update()
+
+  network.setLinkStrength = (newLinkStrength) ->
+    force.stop()
+    setLinkStrength(newLinkStrength)
     update()
 
   network.setRadialLayoutRadius = (newRadius) ->
@@ -280,7 +287,7 @@ Network = () ->
         d.searched = true
       else
         d.searched = false
-        element.style("fill", (d) -> nodeColors(d.type))
+        element.style("fill", (d) -> nodeColors(if d.style then d.style else d.shape))
           .style("stroke-width", 1.0)
 
   network.updateData = (newData) ->
@@ -294,11 +301,11 @@ Network = () ->
   # Returns modified data
   setupData = (data) ->
     # initialize circle radius scale
-    sizeMin = d3.min(data.nodes, (d) -> if d.size? then parseInt(d.size, 10) else Number.MAX_SAFE_INTEGER)
-    sizeMax = d3.max(data.nodes, (d) -> if d.size? then parseInt(d.size, 10) else Number.MIN_SAFE_INTEGER)
-    sizeAverage = (sizeMax - sizeMin) / 2
+    sizeMin = d3.min(data.nodes, (d) -> if d.width? then parseFloat(d.width) else Number.MAX_SAFE_INTEGER)
+    sizeMax = d3.max(data.nodes, (d) -> if d.width? then parseFloat(d.width) else Number.MIN_SAFE_INTEGER)
+    sizeAverage = (sizeMax - sizeMin) / 2 + sizeMin
     sizeExtent = [sizeMin, sizeMax]#d3.extent(data.nodes, (d) -> d.size)
-    circleRadius = d3.scale.sqrt().range([3,12]).domain(sizeExtent)
+    circleRadius = d3.scale.linear().range([3,12]).domain(sizeExtent)
 
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
@@ -306,18 +313,18 @@ Network = () ->
       n.x = randomnumber = Math.floor(Math.random()*width)
       n.y = randomnumber = Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
-      size = if n.size? then n.size else sizeAverage
+      size = if n.width? then n.width else sizeAverage
       n.radius = circleRadius(size)
     
     # id's -> node objects
     nodesMap = mapNodes(data.nodes)
 
     #linkExtent = d3.extent(data.links, (d) -> d.delay)
-    delayMin = d3.min(data.links, (d) -> if d.delay? then parseInt(d.delay, 10) else Number.MAX_SAFE_INTEGER)
-    delayMax = d3.max(data.links, (d) -> if d.delay? then parseInt(d.delay, 10) else Number.MIN_SAFE_INTEGER)
-    delayAverage = (delayMax - delayMin) / 2
+    delayMin = d3.min(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else Number.MAX_SAFE_INTEGER)
+    delayMax = d3.max(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else Number.MIN_SAFE_INTEGER)
+    delayAverage = (delayMax - delayMin) / 2 + delayMin
     delayExtent = [delayMin, delayMax]
-    linkDistance = d3.scale.sqrt().range([10, 50]).domain(delayExtent)
+    linkDistance = d3.scale.linear().range([10, 50]).domain(delayExtent)
 
     # switch links to point to node objects instead of id's
     data.links.forEach (l) ->
@@ -325,8 +332,8 @@ Network = () ->
       l.source =  nodesMap.get(key)
       key = if type(l.target) == 'number' then data.nodes[l.target].id else l.target
       l.target = nodesMap.get(key)
-      delay = if l.delay? then l.delay else delayAverage
-      l.linkDistance = linkDistance(delay)
+      weight = if l.weight? then l.weight else delayAverage
+      l.linkDistance = linkDistance.invert(weight)
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
     data
@@ -427,11 +434,11 @@ Network = () ->
     regs
   
   registers = (nodes) ->
-    regs = nodes.filter (d) -> d.type == "register"
+    regs = nodes.filter (d) -> d.style == "filled"
     regs
 
   combinationals = (nodes) ->
-    combs = nodes.filter (d) -> d.type != "register"
+    combs = nodes.filter (d) -> d.style != "filled"
     combs
 
   updateCenters = (registerKeys, combinationalKeys) ->
@@ -460,7 +467,7 @@ Network = () ->
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
       .attr("r", (d) -> d.radius * radiusMultiplier)
-      .style("fill", (d) -> nodeColors(d.type))
+      .style("fill", (d) -> nodeColors(if d.style then d.style else d.shape))
       .style("stroke", (d) -> strokeFor(d))
       .style("stroke-width", 1.0)
 
@@ -489,11 +496,11 @@ Network = () ->
     if layout == "force"
       force.on("tick", forceTick)
         .charge(charge)#-200
-        .linkDistance((l) -> l.linkDistance)
+        .linkDistance((l) -> l.linkDistance * linkDistanceMultiplier).linkStrength(linkStrengthValue)
     else if layout == "radial"
       force.on("tick", radialTick)
         .charge(charge)
-        .linkDistance((l) -> l.linkDistance)
+        .linkDistance((l) -> l.linkDistance * linkDistanceMultiplier).linkStrength(linkStrengthValue)
 
   # switches filter option to new filter
   setFilter = (newFilter) ->
@@ -504,10 +511,16 @@ Network = () ->
     sort = newSort
 
   setCharge = (newCharge) ->
-    force.charge(newCharge)
+    charge = (node) -> -Math.pow(node.radius, 2.0)/newCharge
+    force.charge(charge)
 
-  setLinkDistance = (newLinkDistance) ->
-    force.linkDistance(newLinkDistance)
+  setLinkDistance = (newLinkDistanceMultiplier) ->
+    linkDistanceMultiplier = newLinkDistanceMultiplier 
+    force.linkDistance((l) -> l.linkDistance * linkDistanceMultiplier)
+
+  setLinkStrength = (newLinkStrength) ->
+    linkStrengthValue = newLinkStrength
+    force.linkStrength(linkStrengthValue)
 
   setRadialLayoutRadius = (newRadialLayoutRadius) ->
     radialLayoutRadius = newRadialLayoutRadius
@@ -553,13 +566,13 @@ Network = () ->
   # Helper function that returns stroke color for
   # particular node.
   strokeFor = (d) ->
-    d3.rgb(nodeColors(if d.type then d.type else d.id)).darker().toString()
+    d3.rgb(nodeColors(if d.style then d.style else d.shape)).darker().toString()
 
   # Mouseover tooltip function
   showDetails = (d,i) ->
     content = '<p class="main">' + if d.name then d.name else d.id + '</span></p>'
     content += '<hr class="tooltip-hr">'
-    content += '<p class="main">' + if d.size then d.size else '-' + '</span></p>'
+    content += '<p class="main">' + if d.width then d.width else '-' + '</span></p>'
     tooltip.showTooltip(content,d3.event)
 
     # higlight connected links
@@ -610,6 +623,33 @@ showRadialInput = ->
 hideRadialInput = ->
   $("#layoutRadius").hide()
 
+downloadSVG = ->
+  #get svg element.
+  svg = $("#vis")[0].childNodes[0]
+
+  #get svg source.
+  serializer = new XMLSerializer();
+  source = serializer.serializeToString(svg);
+
+  #add name spaces.
+  if(!source.match('/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/'))
+    source = source.replace('/^<svg/', '<svg xmlns="http://www.w3.org/2000/svg"')
+  if(!source.match('/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/'))
+    source = source.replace('/^<svg/', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"')
+
+  #add xml declaration
+  source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+  #convert svg source to URI data scheme.
+  url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+  downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = "network.svg";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
 showHideRadialLayoutInput = (layout) ->
   if layout == "radial"
     showRadialInput()
@@ -653,7 +693,11 @@ $ ->
 
   $("#linkDistance").on "input", (e) ->
     newLinkDistance = $(this).val()
-    myNetwork.setLinkDistance(newLinkDistance)
+    myNetwork.setLinkDistance(newLinkDistance / 100.0)
+
+  $("#linkStrength").on "input", (e) ->
+    newLinkStrength = $(this).val()
+    myNetwork.setLinkStrength(newLinkStrength / 10.0)
 
   $("#radiusMultiplier").on "input", (e) ->
     newRadiusMultiplier = $(this).val()
@@ -667,7 +711,10 @@ $ ->
     songFile = $(this).val()
     d3.json "data/#{songFile}", (json) ->
       myNetwork.updateData(json)
-  
+
+  $("#download_button").on "click", (e) ->
+    downloadSVG()
+
   $("#search").keyup () ->
     searchTerm = $(this).val()
     myNetwork.updateSearch(searchTerm)

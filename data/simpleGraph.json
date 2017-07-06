@@ -1,59 +1,59 @@
 {
-  "links": [
-    {
-      "source": 0,
-      "key": 0,
-      "target": 3
-    },
-    {
-      "source": 1,
-      "key": 0,
-      "target": 2
-    },
-    {
-      "source": 1,
-      "key": 0,
-      "target": 3
-    },
-    {
-      "source": 2,
-      "key": 0,
-      "target": 3
-    },
-    {
-      "source": 2,
-      "key": 0,
-      "target": 4
-    },
-    {
-      "source": 3,
-      "key": 0,
-      "target": 4
-    }
-  ],
+  "directed": false,
+  "graph": {
+    "node": {},
+    "graph": {},
+    "name": "",
+    "edge": {}
+  },
   "nodes": [
     {
-      "id": "d"
-    },
-    {
       "id": "b"
-    },
-    {
-      "id": "a"
     },
     {
       "id": "c"
     },
     {
+      "id": "a"
+    },
+    {
       "id": "e"
+    },
+    {
+      "id": "d"
     }
   ],
-  "directed": false,
-  "graph": {
-    "name": "",
-    "edge": {},
-    "graph": {},
-    "node": {}
-  },
+  "links": [
+    {
+      "key": 0,
+      "target": 1,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 2,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 3,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 2,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 4,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 3,
+      "source": 2
+    }
+  ],
   "multigraph": true
 }
