@@ -43,16 +43,17 @@ if len(sys.argv) == 3:
     for dotFile in dotFiles:
         dotFilePath = dotFolderPath + '/' + dotFile
         try:
+            graph_netx = read_dot(dotFilePath)
+        except (ValueError, DotError) as e:
             dot_graph = pgv.AGraph(dotFilePath)
             graph_netx = from_agraph(dot_graph)
-        except (ValueError, DotError) as e:
-            graph_netx = read_dot(dotFilePath)
-            #print(dotFile + ' not in graphviz format')
-            #continue
+            print(dotFile + ' not in graphviz format')
+            continue
         
         graph_json = json_graph.node_link_data(graph_netx)#dot_graph)
         filename = dotFile[:dotFile.rfind('.')]
         json.dump(graph_json,open(jsonFolderPath + '/' + filename + '.json','w'),indent=2)
+        print(filename + '.json converted')
         counter += 1
     with open(dataFileName, 'w') as jsonFile:
         data = {}

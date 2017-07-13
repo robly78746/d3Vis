@@ -75,7 +75,6 @@ RadialPlacement = () ->
     # so that they all fit in one circle
     if(keys.length > 0)
       increment = 360 / keys.length
-
     # set locations for circle
     keys.forEach (k) -> place(k)
   
@@ -140,7 +139,7 @@ Network = () ->
   # of the visualization
   layout = "force"
   filter = "all"
-  sort = "songs"
+  sort = "size"
   # groupCenters will store our radial layout for
   # the group by artist layout.
   groupCenters = null
@@ -185,7 +184,22 @@ Network = () ->
 
     # perform rendering and start force layout
     update()
+    updateLegend()
 
+  updateLegend = () ->
+    svg = d3.select("svg")
+    svg.selectAll(".legend").remove()
+    legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(50, 30)")
+      .style("font-size","12px")
+      .call(d3.legend)
+ 
+    legend
+      .style("font-size","20px")
+      .attr("data-style-padding",10)
+      .call(d3.legend)
+	
   # The update() function performs the bulk of the
   # work to setup our visualization based on the
   # current layout/sort/filter.
@@ -202,8 +216,8 @@ Network = () ->
     if layout == "radial"
       registerNodes = registers(curNodesData)
       registerLinks = filterAdjacentLinks(curLinksData, registerNodes)
-      registerKeys = sortedRegisters(registerNodes, registerLinks)
       comboNodes = combinationals(curNodesData)
+      registerKeys = sortedRegisters(registerNodes, registerLinks, comboNodes)
       comboKeys = comboNodes.map (n) -> n.id
       updateCenters(registerKeys, comboKeys)
 
@@ -222,10 +236,12 @@ Network = () ->
       # other layouts. updateLinks() will be called when
       # force is done animating.
       force.links(curLinksData)
-      # if present, remove them from svg 
-      if link
-        link.data([]).exit().remove()
-        link = null
+      moveToRadialLayout(0.5)
+      # if present, remove them from svg
+      updateLinks()	  
+      #if link
+      #  link.data([]).exit().remove()
+      #  link = null
 
     # start me up!
     force.start()
@@ -279,7 +295,7 @@ Network = () ->
     searchRegEx = new RegExp(searchTerm.toLowerCase())
     node.each (d) ->
       element = d3.select(this)
-      match = d.name.toLowerCase().search(searchRegEx)
+      match = d.id.toLowerCase().search(searchRegEx)
       if searchTerm.length > 0 and match >= 0
         element.style("fill", "#F38630")
           .style("stroke-width", 2.0)
@@ -287,7 +303,7 @@ Network = () ->
         d.searched = true
       else
         d.searched = false
-        element.style("fill", (d) -> nodeColors(if d.style then d.style else d.shape))
+        element.style("fill", (d) -> nodeColors(d.shape))
           .style("stroke-width", 1.0)
 
   network.updateData = (newData) ->
@@ -295,33 +311,63 @@ Network = () ->
     link.remove()
     node.remove()
     update()
+    updateLegend()
 
+  network.setLegendVisibility = (visible) ->
+    svg = d3.select("svg")
+    svg.selectAll(".legend").style("visibility", if visible then "visible" else "hidden")
+
+  stripQuotes = (text) ->
+    strippedString = text
+    if text.charAt(0) == '"' && text.charAt(text.length-1) == '"'
+      strippedString = text.substr 1, text.length-2
+    return strippedString
   # called once to clean up raw data and switch links to
   # point to node instances
   # Returns modified data
   setupData = (data) ->
+    data.nodes.forEach (n) ->
+      if n.size? && type(n.size) == "string"
+        n.size = stripQuotes(n.size)
+      if n.delay? && type(n.delay) == "string"
+        n.delay = stripQuotes(n.delay)
+      if n.info? && type(n.info) == "string"
+        n.info = stripQuotes(n.info)
+      if n.type? && type(n.type) == "string"
+        n.type = stripQuotes(n.type)
     # initialize circle radius scale
-    sizeMin = d3.min(data.nodes, (d) -> if d.width? then parseFloat(d.width) else Number.MAX_SAFE_INTEGER)
-    sizeMax = d3.max(data.nodes, (d) -> if d.width? then parseFloat(d.width) else Number.MIN_SAFE_INTEGER)
-    sizeAverage = (sizeMax - sizeMin) / 2 + sizeMin
-    sizeExtent = [sizeMin, sizeMax]#d3.extent(data.nodes, (d) -> d.size)
-    circleRadius = d3.scale.linear().range([3,12]).domain(sizeExtent)
+    #registerSizeMin = d3.min(registers(data.nodes), (d) -> if d.width? then parseFloat(d.width) else Number.MAX_SAFE_INTEGER)
+    #registerSizeMax = d3.max(registers(data.nodes), (d) -> if d.width? then parseFloat(d.width) else Number.MIN_SAFE_INTEGER)
+    #registerSizeAverage = (sizeMax - sizeMin) / 2 + sizeMin
+    registerSizeExtent = d3.extent(registers(data.nodes), (d) -> if d.size? then parseInt(d.size, 10) else 0)#[sizeRegisterMin, sizeRegisterMax]
+    registerCircleRadius = d3.scale.linear().range([10, 20]).domain(registerSizeExtent)
+    
+    registerSizeMin = registerSizeExtent[0]
 
+    logicSizeExtent = d3.extent(combinationals(data.nodes), (d) -> if d.delay? then parseInt(d.delay, 10) else 0)#[sizeRegisterMin, sizeRegisterMax]
+    logicCircleRadius = d3.scale.linear().range([1,12]).domain(logicSizeExtent)
+
+    logicSizeMin = logicSizeExtent[0]   
+   
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
       # of the visualization
       n.x = randomnumber = Math.floor(Math.random()*width)
       n.y = randomnumber = Math.floor(Math.random()*height)
       # add radius to the node so we can use it later
-      size = if n.width? then n.width else sizeAverage
-      n.radius = circleRadius(size)
+      if isRegister(n)
+        size = if n.size? then parseInt(n.size, 10) else registerSizeMin
+        n.radius = registerCircleRadius(size)
+      else
+        size = if n.delay? then parseInt(n.delay, 10) else logicSizeMin
+        n.radius = logicCircleRadius(size)
     
     # id's -> node objects
     nodesMap = mapNodes(data.nodes)
 
     #linkExtent = d3.extent(data.links, (d) -> d.delay)
-    delayMin = d3.min(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else Number.MAX_SAFE_INTEGER)
-    delayMax = d3.max(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else Number.MIN_SAFE_INTEGER)
+    delayMin = d3.min(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else 10)
+    delayMax = d3.max(data.links, (d) -> if d.weight? then parseInt(d.weight, 10) else 10)
     delayAverage = (delayMax - delayMin) / 2 + delayMin
     delayExtent = [delayMin, delayMax]
     linkDistance = d3.scale.linear().range([10, 50]).domain(delayExtent)
@@ -332,10 +378,14 @@ Network = () ->
       l.source =  nodesMap.get(key)
       key = if type(l.target) == 'number' then data.nodes[l.target].id else l.target
       l.target = nodesMap.get(key)
-      weight = if l.weight? then l.weight else delayAverage
+      weight = if l.weight? then l.weight else 5
       l.linkDistance = linkDistance.invert(weight)
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
+      data.nodes.forEach (n) ->
+        if l.source == n || l.target == n
+          if !n.links? then n.links = []
+          n.links.push (l)
     data
 
   # Helper function to map node id's to node objects.
@@ -407,7 +457,89 @@ Network = () ->
       artists = artists.map (v) -> v.key
 
     artists
-  sortedRegisters = (nodes, links) ->
+
+  #helper methods for sorting registers
+  #links must be connected to at least one register
+  #removes links that connect node to register
+  findRegistersConnectedToNode = (node, links) ->
+    registersFound = []
+    links.forEach (l, index) ->
+      regToAdd = null
+      if l.source == node && isRegister(l.target)
+        regToAdd = l.target
+      else if l.target == node && isRegister(l.source)
+        regToAdd = l.source
+      if regToAdd != null
+        registersFound.push(regToAdd)
+        links.splice(index, 1)
+    registersFound
+
+  updateNodesConnectedToRegisters = (counts, registers, nodes, links) ->
+    links.forEach (l, index) ->
+      if l.source in registers && l.target in nodes
+        counts[l.target.id] ?= 0
+        counts[l.target.id] += 1
+        links.splice(index, 1)
+      else if l.target in registers && l.source in nodes
+        counts[l.source.id] ?= 0
+        counts[l.source.id] += 1
+        links.splice(index, 1)
+
+  breadthFirstStep = (node, callback) ->
+    nextNodes = []
+    node.visited = true
+    callback? node
+    node.links.forEach (l) ->
+      otherNode = if l.source == node then l.target else l.source
+      if !otherNode.visited
+        nextNodes.push(otherNode)
+    nextNodes
+
+  breadthFirst = (nodes, otherNodes, callback) ->
+    copyOfNodes = nodes.slice()
+    # initialize nodes for breadth first visit 
+    otherNodes.forEach (n) ->
+      n.visited = false
+    copyOfNodes.forEach (n) ->
+      n.visited = false
+    nodesAtLevel = []
+    numSteps = 0
+    origin = ""
+    while copyOfNodes.length > 0
+      if nodesAtLevel.length == 0
+        nodesAtLevel.push(copyOfNodes[0])
+        copyOfNodes.splice(0, 1)
+        numSteps = 0
+        origin = nodesAtLevel[0]
+      temp = new Set()
+      
+      nodesAtLevel.forEach (n) ->
+        #if isRegister(n)
+        #  console.log(numSteps, "steps from", origin.info, "to", n.info)
+        nextNodes = breadthFirstStep(n, callback)
+        temp.add(nextNode) for nextNode in nextNodes
+      numSteps += 1
+      nodesAtLevel = if temp.size > 0 then Array.from(temp) else []
+      #copyOfNodesIds = copyOfNodes.map (n) -> n.id
+      #nodesAtLevelIds = nodesAtLevel.map (n) -> n.id
+
+  depthFirst = (nodes, otherNodes, callback) ->
+    copyOfNodes = nodes.slice()
+	# initialize nodes for depth first visit 
+    otherNodes.forEach (n) ->
+      n.visited = false
+    copyOfNodes.forEach (n) ->
+      n.visited = false
+    while copyOfNodes.length > 0
+      nextNodes = breadthFirstStep(copyOfNodes[0], callback)
+      copyOfNodes.splice(0, 1)
+      # append next nodes to front to visit first
+      if n not in copyOfNodes then copyOfNodes.unshift n for n in nextNodes
+      #nextNodes.forEach (n) ->
+      #  if n not in copyOfNodes
+      #    copyOfNodes.unshift(n)
+
+  sortedRegisters = (nodes, links, otherNodes) ->
     regs = []
     if sort == "links"
       counts = {}
@@ -425,21 +557,64 @@ Network = () ->
       regs = d3.entries(counts).sort (a,b) ->
         b.value - a.value
       regs = regs.map (v) -> v.key
-    else
+    else if sort == "size"
       # sort registers by size
       sortedNodes = nodes.sort (a,b) ->
         b.radius - a.radius
-      sortedNodes.forEach (n) ->
-        regs.push(n.id)
+      regs = sortedNodes.map (n) -> n.id
+    else if sort == "children"
+      visitedNodes = new Set()
+      nodesLeft = otherNodes.slice()
+      curNode = nodesLeft[0]
+      counts = {} # key: node id ; value: number of connections from regs to nodesLeft
+      regs = new Set()
+      localLinks = links.slice()
+      while visitedNodes.size < otherNodes.length 
+        newRegisters = findRegistersConnectedToNode(curNode, localLinks)
+        #add unique registers to regs array
+        newRegisters.forEach (n) ->
+          regs.add(n)
+        #remove node from nodesleft
+        index = nodesLeft.indexOf(curNode)
+        if index > -1
+          visitedNodes.add(curNode)
+          nodesLeft.splice(index, 1)
+        if newRegisters > 0
+          updateNodesConnectedToRegisters(counts, newRegisters, nodesLeft, localLinks)
+          newNode = d3.max(nodesLeft, (n) -> if counts[n.id]? then counts[n.id] else 0)
+          curNode = newNode
+        else 
+          curNode = nodesLeft[0]
+      nodes.forEach (n) ->
+        regs.add(n)
+      regs = Array.from(regs)
+      regs = regs.map (v) -> v.id
+    else if sort == "random"
+      sortedNodes = nodes.sort (a,b) ->
+        0.5 - Math.random()
+      regs = sortedNodes.map (n) -> n.id
+    else if sort == "breadthFirst"
+      breadthFirst(nodes, otherNodes, (n) ->
+        if n.id not in regs && isRegister(n)
+          regs.push(n.id)
+      )
+    else if sort == "depthFirst"
+      depthFirst(nodes, otherNodes, (n) ->
+        if n.id not in regs && isRegister(n)
+          regs.push(n.id)
+      )
     regs
   
   registers = (nodes) ->
-    regs = nodes.filter (d) -> d.style == "filled"
+    regs = nodes.filter (d) -> isRegister(d)
     regs
 
   combinationals = (nodes) ->
-    combs = nodes.filter (d) -> d.style != "filled"
+    combs = nodes.filter (d) -> !isRegister(d)
     combs
+
+  isRegister = (node) ->
+    return node.type == "Register" || node.type == "Constant"
 
   updateCenters = (registerKeys, combinationalKeys) ->
     if layout == "radial"
@@ -457,7 +632,9 @@ Network = () ->
   filterAdjacentLinks = (allLinks, curNodes) ->
     curNodes = mapNodes(curNodes)
     allLinks.filter (l) ->
-      curNodes.get(l.source.id) or curNodes.get(l.target.id)
+      isSource = curNodes.get(l.source.id)
+      isTarget = curNodes.get(l.target.id)
+      isSource ? !isTarget : isTarget #XOR
   # enter/exit display for nodes
   updateNodes = () ->
     node = nodesG.selectAll("circle.node")
@@ -467,7 +644,8 @@ Network = () ->
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
       .attr("r", (d) -> d.radius * radiusMultiplier)
-      .style("fill", (d) -> nodeColors(if d.style then d.style else d.shape))
+      .attr("data-legend", (d) -> d.type)
+      .style("fill", (d) -> nodeColors(d.type))
       .style("stroke", (d) -> strokeFor(d))
       .style("stroke-width", 1.0)
 
@@ -482,7 +660,7 @@ Network = () ->
       .data(curLinksData, (d) -> "#{d.source.id}_#{d.target.id}")
     link.enter().append("line")
       .attr("class", "link")
-      .attr("stroke", "#ddd")
+      .attr("stroke", "gray")
       .attr("stroke-opacity", 0.8)
       .attr("x1", (d) -> d.source.x)
       .attr("y1", (d) -> d.source.y)
@@ -542,43 +720,59 @@ Network = () ->
 
   # tick function for radial layout
   radialTick = (e) ->
-    node.each(moveToRadialLayout(e.alpha))
-
+    #node.each(moveToRadialLayout(e.alpha))
+    node.each(keepCircleLayout(e.alpha))
+    k = e.alpha * 0.1
     node
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
+
+    link
+      .attr("x1", (d) -> d.source.x)
+      .attr("y1", (d) -> d.source.y)
+      .attr("x2", (d) -> d.target.x)
+      .attr("y2", (d) -> d.target.y)
 
     if e.alpha < 0.03
       force.stop()
       updateLinks()
 
+  keepCircleLayout = (alpha) ->
+    (d) ->
+      centerNode = groupCenters(d.id)
+      if isRegister(d)
+        k = alpha * 0.1
+        d.x += (centerNode.x - d.x)# * k
+        d.y += (centerNode.y - d.y)# * k
   # Adjusts x/y for each node to
   # push them towards appropriate location.
   # Uses alpha to dampen effect over time.
   moveToRadialLayout = (alpha) ->
-    k = alpha * 0.1
+    #k = alpha * 0.1
     (d) ->
       centerNode = groupCenters(d.id)
-      d.x += (centerNode.x - d.x) * k
-      d.y += (centerNode.y - d.y) * k
+      d.x = centerNode.x
+      d.y = centerNode.y
+      #else
+      #  d.x += (centerNode.x - d.x) * k
+      #  d.y += (centerNode.y - d.y) * k
 
 
   # Helper function that returns stroke color for
   # particular node.
   strokeFor = (d) ->
-    d3.rgb(nodeColors(if d.style then d.style else d.shape)).darker().toString()
+    d3.rgb(nodeColors(d.type)).darker().toString()
 
   # Mouseover tooltip function
   showDetails = (d,i) ->
-    content = '<p class="main">' + if d.name then d.name else d.id + '</span></p>'
+    content = '<p class="main">' + if d.info? then d.info else d.id + '</span></p>'
     content += '<hr class="tooltip-hr">'
-    content += '<p class="main">' + if d.width then d.width else '-' + '</span></p>'
+    content += '<p class="main">' + if d.size? then d.size else d.delay + '</span></p>'
     tooltip.showTooltip(content,d3.event)
-
     # higlight connected links
     if link
       link.attr("stroke", (l) ->
-        if l.source == d or l.target == d then "#555" else "#ddd"
+        if l.source == d || l.target == d then "#555" else "gray"
       )
         .attr("stroke-opacity", (l) ->
           if l.source == d or l.target == d then 1.0 else 0.5
@@ -606,7 +800,7 @@ Network = () ->
     node.style("stroke", (n) -> if !n.searched then strokeFor(n) else "#555")
       .style("stroke-width", (n) -> if !n.searched then 1.0 else 2.0)
     if link
-      link.attr("stroke", "#ddd")
+      link.attr("stroke", "gray")
         .attr("stroke-opacity", 0.8)
 
   # Final act of Network() function is to return the inner 'network()' function.
@@ -711,12 +905,17 @@ $ ->
     songFile = $(this).val()
     d3.json "data/#{songFile}", (json) ->
       myNetwork.updateData(json)
+  
+  $("#search").keyup () ->
+    searchTerm = $(this).val()
+    myNetwork.updateSearch(searchTerm)
+
+  $("#showLegend").on "change", (e) ->
+    checked = $(this).prop("checked")
+    myNetwork.setLegendVisibility(checked)
 
   $("#download_button").on "click", (e) ->
     downloadSVG()
 
-  $("#search").keyup () ->
-    searchTerm = $(this).val()
-    myNetwork.updateSearch(searchTerm)
   d3.json "data/digital_logic_template2.json", (json) ->
     myNetwork("#vis", json)

@@ -60,12 +60,17 @@
       </div>
       <div id="sorts" class="control">
         <h3>Sort</h3>
-        <a id="songs" class="active">Size</a>
+        <a id="size" class="active">Size</a>
         <a id="links">Links</a>
+		<a id="random">Random</a>
+		<a id="children">Common Child</a>
+	    <a id="breadthFirst">Breadth First</a>
+		<a id="depthFirst">Depth First</a>
       </div>
       <div id="search_section" class="control">
         <form id="search_form" action=""  method="post">
           <p class="search_title">Search <input type="text" class="text-input" id="search" value="" /></p>
+		  <p class="search_title">Show Legend <input type="checkbox" class="input" id="showLegend" checked/></p>
 		  <p class="search_title"><button id="download_button" type="button">Download SVG</button></p>
         </form>
       </div>
@@ -96,6 +101,7 @@
   <script defer src="js/script.js"></script>
   <script src="js/libs/coffee-script.js"></script>
   <script src="js/libs/d3.v2.js"></script>
+  <script src="js/libs/d3.legend.js"></script>
   <script src="js/Tooltip.js"></script>
   <script type="text/coffeescript" src="coffee/vis.coffee"></script>
 
