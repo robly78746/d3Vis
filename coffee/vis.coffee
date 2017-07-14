@@ -163,6 +163,8 @@ Network = () ->
   linkDistanceMultiplier = 1
   linkStrengthValue = 1
 
+  legendVisible = false
+  legendDisabled = true
   # Starting point for network visualization
   # Initializes visualization and starts force layout
   network = (selection, data) ->
@@ -186,19 +188,27 @@ Network = () ->
     update()
     updateLegend()
 
+  removeLegend = () ->
+    svg = d3.select("svg")
+    svg.selectAll(".legend").remove()
+
   updateLegend = () ->
+    if legendDisabled
+      return
     svg = d3.select("svg")
     svg.selectAll(".legend").remove()
     legend = svg.append("g")
       .attr("class", "legend")
       .attr("transform", "translate(50, 30)")
-      .style("font-size","12px")
-      .call(d3.legend)
- 
-    legend
-      .style("font-size","20px")
       .attr("data-style-padding",10)
+      .style("font-size","20px")
       .call(d3.legend)
+    setLegendVisibility(legendVisible)
+
+  setLegendVisibility = (visible) ->
+    svg = d3.select("svg")
+    svg.selectAll(".legend").style("visibility", if visible then "visible" else "hidden")
+    legendVisible = visible
 	
   # The update() function performs the bulk of the
   # work to setup our visualization based on the
@@ -313,9 +323,14 @@ Network = () ->
     update()
     updateLegend()
 
+  network.updateLegend = () ->
+    updateLegend()
+
+  network.removeLegend = () ->
+    removeLegend()
+
   network.setLegendVisibility = (visible) ->
-    svg = d3.select("svg")
-    svg.selectAll(".legend").style("visibility", if visible then "visible" else "hidden")
+    setLegendVisibility(visible)
 
   stripQuotes = (text) ->
     strippedString = text
@@ -850,7 +865,21 @@ showHideRadialLayoutInput = (layout) ->
   else
     hideRadialInput()
 
+# https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+getParameterByName = (name, url) -> 
+    if (!url) 
+      url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
+    results = regex.exec(url);
+    if (!results) 
+      return null
+    if (!results[2]) 
+      return ''
+    return decodeURIComponent(results[2].replace(/\+/g, " "));	
+
 $ ->
+  console.log(getParameterByName('foo'))
   myNetwork = Network()
 
   d3.selectAll("#layouts a").on "click", (d) ->
@@ -915,7 +944,9 @@ $ ->
     myNetwork.setLegendVisibility(checked)
 
   $("#download_button").on "click", (e) ->
+    myNetwork.removeLegend()
     downloadSVG()
+    myNetwork.updateLegend()
 
   d3.json "data/digital_logic_template2.json", (json) ->
     myNetwork("#vis", json)
