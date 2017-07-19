@@ -117,7 +117,7 @@ RadialPlacement = () ->
 
   return placement
 
-Network = () ->
+Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier} = {}) ->
   # variables we want to access
   # in multiple places of Network
   width = 960
@@ -137,9 +137,15 @@ Network = () ->
   link = null
   # variables to refect the current settings
   # of the visualization
-  layout = "force"
-  filter = "all"
-  sort = "size"
+  layout ?= "force"
+  filter ?= "all"
+  sort ?= "none"
+  movement ?= "dynamic"
+  chargeDivider ?= 2
+  linkDistanceMultiplier ?= 1
+  linkStrengthValue ?= 1
+  # radius multiplier used to enlarge/shrink radius of node to display
+  radiusMultiplier ?= 1
   # groupCenters will store our radial layout for
   # the group by artist layout.
   groupCenters = null
@@ -151,20 +157,16 @@ Network = () ->
   # tooltip used to display details
   tooltip = Tooltip("vis-tooltip", 230)
 
+  
   # charge used in artist layout
-  charge = (node) -> -Math.pow(node.radius, 2.0)/2
+  charge = (node) -> -Math.pow(node.radius, 2.0)/chargeDivider
 
   # radius used in radial layout
   radialLayoutRadius = 300
 
-  # radius multiplier used to enlarge/shrink radius of node to display
-  radiusMultiplier = 1
-
-  linkDistanceMultiplier = 1
-  linkStrengthValue = 1
-
   legendVisible = false
-  legendDisabled = true
+  legendDisabled = false
+  
   # Starting point for network visualization
   # Initializes visualization and starts force layout
   network = (selection, data) ->
@@ -181,8 +183,8 @@ Network = () ->
     # setup the size of the force environment
     force.size([width, height])
 
-    setLayout("force")
-    setFilter("all")
+    setLayout(layout)
+    setFilter(filter)
 
     # perform rendering and start force layout
     update()
@@ -220,7 +222,7 @@ Network = () ->
     # filter data to show based on current filter settings.
     curNodesData = filterNodes(allData.nodes)
     curLinksData = filterLinks(allData.links, curNodesData)
-
+    console.log(layout)
     # sort nodes based on current sort and update centers for
     # radial layout
     if layout == "radial"
@@ -233,33 +235,40 @@ Network = () ->
 
     # reset nodes in force layout
     force.nodes(curNodesData)
-
-    # enter / exit for nodes
-    updateNodes()
-
+    
+    # reset links
+    force.links(curLinksData)
     # always show links in force layout
-    if layout == "force"
-      force.links(curLinksData)
-      updateLinks()
-    else
-      # reset links so they do not interfere with
-      # other layouts. updateLinks() will be called when
-      # force is done animating.
-      force.links(curLinksData)
-      moveToRadialLayout(0.5)
-      # if present, remove them from svg
-      updateLinks()	  
-      #if link
-      #  link.data([]).exit().remove()
-      #  link = null
+    if layout == "radial"
+      moveToRadialLayout()
+
+    #if movement == "dynamic"
+      # enter / exit for nodes
+    #  if layout == "force" || layout == "radial"
+    updateNodes()
+    updateLinks()
 
     # start me up!
     force.start()
+
+    if movement == "static"
+      #updateNodes()
+      #updateLinks()
+      while force.alpha() > 0
+        force.tick()
+      force.stop()
+      
 
   # Public function to switch between layouts
   network.toggleLayout = (newLayout) ->
     force.stop()
     setLayout(newLayout)
+    update()
+
+  # Public function to switch between movements
+  network.toggleMovement = (newMovement) ->
+    force.stop()
+    setMovement(newMovement)
     update()
 
   # Public function to switch between filter options
@@ -350,17 +359,18 @@ Network = () ->
         n.info = stripQuotes(n.info)
       if n.type? && type(n.type) == "string"
         n.type = stripQuotes(n.type)
+    console.log("number of nodes:",data.nodes.length)
     # initialize circle radius scale
     #registerSizeMin = d3.min(registers(data.nodes), (d) -> if d.width? then parseFloat(d.width) else Number.MAX_SAFE_INTEGER)
     #registerSizeMax = d3.max(registers(data.nodes), (d) -> if d.width? then parseFloat(d.width) else Number.MIN_SAFE_INTEGER)
     #registerSizeAverage = (sizeMax - sizeMin) / 2 + sizeMin
     registerSizeExtent = d3.extent(registers(data.nodes), (d) -> if d.size? then parseInt(d.size, 10) else 0)#[sizeRegisterMin, sizeRegisterMax]
-    registerCircleRadius = d3.scale.linear().range([10, 20]).domain(registerSizeExtent)
+    registerCircleRadius = d3.scale.linear().range([1, 10]).domain(registerSizeExtent)
     
     registerSizeMin = registerSizeExtent[0]
 
     logicSizeExtent = d3.extent(combinationals(data.nodes), (d) -> if d.delay? then parseInt(d.delay, 10) else 0)#[sizeRegisterMin, sizeRegisterMax]
-    logicCircleRadius = d3.scale.linear().range([1,12]).domain(logicSizeExtent)
+    logicCircleRadius = d3.scale.linear().range([1,20]).domain(logicSizeExtent)
 
     logicSizeMin = logicSizeExtent[0]   
    
@@ -618,6 +628,19 @@ Network = () ->
         if n.id not in regs && isRegister(n)
           regs.push(n.id)
       )
+    else if sort == "alpha"
+      sortedNodes = nodes.sort (a,b) ->
+        aString = a.id.toLowerCase()
+        bString = b.id.toLowerCase()
+        if aString < bString 
+          return -1 
+        else if aString > bString
+          return 1
+        else
+          return 0
+      regs = sortedNodes.map (n) -> n.id
+    else
+      regs = nodes
     regs
   
   registers = (nodes) ->
@@ -629,7 +652,7 @@ Network = () ->
     combs
 
   isRegister = (node) ->
-    return node.type == "Register" || node.type == "Constant"
+    return node.type == "Register" || node.type == "Constant" || node.type == "PipeLine"
 
   updateCenters = (registerKeys, combinationalKeys) ->
     if layout == "radial"
@@ -689,11 +712,15 @@ Network = () ->
     if layout == "force"
       force.on("tick", forceTick)
         .charge(charge)#-200
-        .linkDistance((l) -> l.linkDistance * linkDistanceMultiplier).linkStrength(linkStrengthValue)
+        .linkStrength(linkStrengthValue).linkDistance((l) -> l.linkDistance * linkDistanceMultiplier)
     else if layout == "radial"
       force.on("tick", radialTick)
         .charge(charge)
-        .linkDistance((l) -> l.linkDistance * linkDistanceMultiplier).linkStrength(linkStrengthValue)
+        .linkStrength(linkStrengthValue).linkDistance((l) -> l.linkDistance * linkDistanceMultiplier)
+
+  # switches movement option to new movement
+  setMovement = (newMovement) ->
+    movement = newMovement
 
   # switches filter option to new filter
   setFilter = (newFilter) ->
@@ -704,7 +731,8 @@ Network = () ->
     sort = newSort
 
   setCharge = (newCharge) ->
-    charge = (node) -> -Math.pow(node.radius, 2.0)/newCharge
+    chargeDivider = newCharge
+    charge = (node) -> -Math.pow(node.radius, 2.0)/chargeDivider
     force.charge(charge)
 
   setLinkDistance = (newLinkDistanceMultiplier) ->
@@ -762,15 +790,11 @@ Network = () ->
   # Adjusts x/y for each node to
   # push them towards appropriate location.
   # Uses alpha to dampen effect over time.
-  moveToRadialLayout = (alpha) ->
-    #k = alpha * 0.1
+  moveToRadialLayout = () ->
     (d) ->
       centerNode = groupCenters(d.id)
       d.x = centerNode.x
       d.y = centerNode.y
-      #else
-      #  d.x += (centerNode.x - d.x) * k
-      #  d.y += (centerNode.y - d.y) * k
 
 
   # Helper function that returns stroke color for
@@ -822,9 +846,12 @@ Network = () ->
   return network
 
 # Activate selector button
-activate = (group, link) ->
+activate = (group, link, defaultOption) ->
   d3.selectAll("##{group} a").classed("active", false)
-  d3.select("##{group} ##{link}").classed("active", true)
+  element = d3.select("##{group} ##{link}")
+  if element.empty()
+    element = d3.select("##{group} ##{defaultOption}")
+  element.classed("active", true)
 
 showRadialInput = ->
   $("#layoutRadius").show()
@@ -875,12 +902,38 @@ getParameterByName = (name, url) ->
     if (!results) 
       return null
     if (!results[2]) 
-      return ''
+      return null
     return decodeURIComponent(results[2].replace(/\+/g, " "));	
 
+# https://stelfox.net/blog/2013/12/access-get-parameters-with-coffeescript/
+getParams = () ->
+  query = window.location.search.substring(1)
+  raw_vars = query.split("&")
+
+  params = {}
+  for v in raw_vars
+    [key, val] = v.split("=")
+    params[key] = decodeURIComponent(val)
+  params
+
 $ ->
-  console.log(getParameterByName('foo'))
-  myNetwork = Network()
+  urlParams = getParams()
+  console.log(urlParams)
+  graph = urlParams['graph']
+  layout = urlParams['layout']
+  movement = urlParams['movement']
+  filter = urlParams['filter']
+  sort = urlParams['sort']
+  chargeDividerInput = parseInt(urlParams['charge'], 10)
+  chargeDivider = chargeDividerInput / 100.0
+  linkDistanceInput = parseInt(urlParams['linkdistance'], 10) 
+  linkDistanceMultiplier = linkDistanceInput / 100.0
+  linkStrengthInput = parseInt(urlParams['linkstrength'], 10)
+  linkStrengthValue = linkStrength / 10.0
+  radiusInput = parseInt(urlParams['radius'], 10)
+  radiusMultiplier = radiusInput / 100.0
+  layoutRadiusInput = parseInt(urlParams['layoutradius'], 10)
+  myNetwork = Network(layout:layout, movement: movement, filter: filter, sort: sort, chargeDivider: chargeDivider)
 
   d3.selectAll("#layouts a").on "click", (d) ->
     newLayout = d3.select(this).attr("id")
@@ -888,43 +941,61 @@ $ ->
     myNetwork.toggleLayout(newLayout)
     showHideRadialLayoutInput(newLayout)
 
+  if layout?
+    activate("layouts", layout, "force")
   showHideRadialLayoutInput(myNetwork.layout)
+
+  d3.selectAll("#movement a").on "click", (d) ->
+    newMovement = d3.select(this).attr("id")
+    activate("movement", newMovement)
+    myNetwork.toggleMovement(newMovement)
+
+  if movement?
+    activate("movement", movement, "dynamic")
 
   d3.selectAll("#filters a").on "click", (d) ->
     newFilter = d3.select(this).attr("id")
     activate("filters", newFilter)
     myNetwork.toggleFilter(newFilter)
 
+  if filter?
+    activate("filters", filter, "all")
+
   d3.selectAll("#sorts a").on "click", (d) ->
     newSort = d3.select(this).attr("id")
     activate("sorts", newSort)
     myNetwork.toggleSort(newSort)
 
-  updateGraphOptions = (options) ->
-    console.log("updating graph options")
-    console.log(options)
-    select = d3.select("#song_select").selectAll("option").data(options.graphs).attr("value", (d) -> d).text((d) -> d)
-    select.enter().append("option").attr("value", (d) -> d).text((d) -> d)
-    select.exit().remove()
-  d3.json "data/data.json", (json) ->
-    console.log("data called")
-    updateGraphOptions(json)
+  if sort?
+    activate("sorts", sort, "none")
 
   $("#charge").on "input", (e) ->
     newCharge = $(this).val()
     myNetwork.setCharge(newCharge / 100.0)
 
+  if type(chargeDividerInput) == "number" && !isNaN(chargeDividerInput)
+    element = d3.select("#charge").property("value", chargeDividerInput)
+
   $("#linkDistance").on "input", (e) ->
     newLinkDistance = $(this).val()
     myNetwork.setLinkDistance(newLinkDistance / 100.0)
+
+  if type(linkDistanceInput) == "number" && !isNaN(linkDistanceInput)
+    d3.select("#linkDistance").property("value", linkDistanceInput)
 
   $("#linkStrength").on "input", (e) ->
     newLinkStrength = $(this).val()
     myNetwork.setLinkStrength(newLinkStrength / 10.0)
 
+  if type(linkStrengthInput) == "number" && !isNaN(linkStrengthInput)
+    d3.select("#linkStrength").property("value", linkStrengthInput)
+
   $("#radiusMultiplier").on "input", (e) ->
     newRadiusMultiplier = $(this).val()
     myNetwork.setRadiusMultiplier(newRadiusMultiplier / 100.0)
+
+  if type(radiusInput) == "number" && !isNaN(radiusInput)
+    d3.select("#radiusMultiplier").property("value", radiusInput)
 
   $("#layoutRadiusInput").on "input", (e) ->
     newRadius = $(this).val()
@@ -948,5 +1019,23 @@ $ ->
     downloadSVG()
     myNetwork.updateLegend()
 
-  d3.json "data/digital_logic_template2.json", (json) ->
-    myNetwork("#vis", json)
+  updateGraphOptions = (options) ->
+    console.log("updating graph options")
+    console.log(options)
+    select = d3.select("#song_select").selectAll("option").data(options.graphs).attr("value", (d) -> d).text((d) -> d)
+    select.enter().append("option").attr("value", (d) -> d).text((d) -> d)
+    select.exit().remove()
+
+  checkOption = (e) ->
+    if e == graph
+      d3.select(this).attr("selected", "")
+    else 
+      d3.select(this).attr("selected", null)
+
+  d3.json "data/data.json", (json) ->
+    console.log("data called")
+    updateGraphOptions(json)
+    d3.select("#song_select").selectAll("option").each(checkOption)
+    selectedGraph = $("#song_select").val()
+    d3.json "data/#{selectedGraph}", (json) ->
+      myNetwork("#vis", json)

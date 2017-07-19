@@ -1,42 +1,44 @@
 {
+  "directed": false,
   "links": [
     {
+      "source": 0,
+      "target": 1,
+      "key": 0
+    },
+    {
+      "source": 0,
       "target": 2,
-      "source": 0,
       "key": 0
     },
     {
-      "target": 3,
-      "source": 0,
-      "key": 0
-    },
-    {
-      "target": 4,
-      "source": 0,
-      "key": 0
-    },
-    {
-      "target": 2,
       "source": 1,
-      "key": 0
-    },
-    {
       "target": 3,
-      "source": 2,
       "key": 0
     },
     {
+      "source": 1,
+      "target": 2,
+      "key": 0
+    },
+    {
+      "source": 1,
       "target": 4,
+      "key": 0
+    },
+    {
       "source": 2,
+      "target": 4,
       "key": 0
     }
   ],
-  "graph": {
-    "name": "G"
-  },
-  "directed": false,
-  "multigraph": true,
   "nodes": [
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    },
     {
       "id": "a"
     },
@@ -44,13 +46,14 @@
       "id": "d"
     },
     {
-      "id": "c"
-    },
-    {
-      "id": "b"
-    },
-    {
       "id": "e"
     }
-  ]
+  ],
+  "graph": {
+    "name": "",
+    "node": {},
+    "edge": {},
+    "graph": {}
+  },
+  "multigraph": true
 }
