@@ -79,15 +79,16 @@
           <p class="search_title">Search <input type="text" class="text-input" id="search" value="" /></p>
 		  <p class="search_title">Show Legend <input type="checkbox" class="input" id="showLegend" /></p>
 		  <p class="search_title"><button id="download_button" type="button">Download SVG</button></p>
+		  <p class="search_title"><a id="graphLink">Link To Graph</a></p>
         </form>
       </div>
 	  <div id="config_section" class="control">
         <form id="config_form" action=""  method="post">
-          <p class="search_title">Charge <input type="range" class="text-input" id="charge" min="1" max="1600" value="" /></p>
-		  <p class="search_title">Link Distance <input type="range" class="text-input" id="linkDistance" min="1" max="200" value="" /></p><br>
-		  <p class="search_title">Link Strength <input type="range" class="text-input" id="linkStrength" min="1" max="100" value="" /></p><br>
-		  <p class="search_title">Radius Multiplier<input type="range" class="text-input" id="radiusMultiplier" min="1" max="500" value="" /></p>
-		  <p class="search_title" id="layoutRadius">Layout Radius <input type="range" class="text-input" id="layoutRadiusInput" min="1" max="500" value="" /></p>
+          <p class="search_title">Charge <input type="range" class="text-input" id="charge" min="1" max="1600" value="200" /></p>
+		  <p class="search_title">Link Distance <input type="range" class="text-input" id="linkDistance" min="1" max="200" value="100" /></p><br>
+		  <p class="search_title">Link Strength <input type="range" class="text-input" id="linkStrength" min="1" max="100" value="10" /></p><br>
+		  <p class="search_title">Radius Multiplier<input type="range" class="text-input" id="radiusMultiplier" min="1" max="500" value="100" /></p>
+		  <p class="search_title" id="layoutRadius">Layout Radius <input type="range" class="text-input" id="layoutRadiusInput" min="1" max="500" value="300" /></p>
         </form>
       </div>
     <div id="main" role="main">

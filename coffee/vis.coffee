@@ -117,7 +117,7 @@ RadialPlacement = () ->
 
   return placement
 
-Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier} = {}) ->
+Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius} = {}) ->
   # variables we want to access
   # in multiple places of Network
   width = 960
@@ -146,6 +146,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   linkStrengthValue ?= 1
   # radius multiplier used to enlarge/shrink radius of node to display
   radiusMultiplier ?= 1
+  # radius used in radial layout
+  radialLayoutRadius ?= 300
   # groupCenters will store our radial layout for
   # the group by artist layout.
   groupCenters = null
@@ -161,11 +163,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   # charge used in artist layout
   charge = (node) -> -Math.pow(node.radius, 2.0)/chargeDivider
 
-  # radius used in radial layout
-  radialLayoutRadius = 300
-
   legendVisible = false
-  legendDisabled = false
+  legendDisabled = true
   
   # Starting point for network visualization
   # Initializes visualization and starts force layout
@@ -629,6 +628,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
           regs.push(n.id)
       )
     else if sort == "alpha"
+      # sort nodes alphabetically
       sortedNodes = nodes.sort (a,b) ->
         aString = a.id.toLowerCase()
         bString = b.id.toLowerCase()
@@ -916,6 +916,32 @@ getParams = () ->
     params[key] = decodeURIComponent(val)
   params
 
+generateGraphLink = () ->
+  baseURL = 'localhost:8000/?'
+  parameters = {}
+  parameters['graph'] = $('#song_select').val()
+  parameters['layout'] = d3.selectAll("#layouts a").filter(".active").attr("id")
+  parameters['movement'] = d3.selectAll("#movement a").filter(".active").attr("id")
+  parameters['filter'] = d3.selectAll("#filters a").filter(".active").attr("id")
+  parameters['sort'] = d3.selectAll("#sorts a").filter(".active").attr("id")
+  parameters['charge'] = $("#charge").val()
+  parameters['linkdistance'] = $("#linkDistance").val()
+  parameters['linkstrength'] = $("#linkStrength").val()
+  parameters['radius'] = $("#radiusMultiplier").val()
+  parameters['layoutradius'] = $("#layoutRadiusInput").val()
+  parameterList = []
+  parameterList.push(paramName + '=' + value) for paramName, value of parameters
+  console.log(parameterList.join('&'))
+  return baseURL + parameterList.join('&')
+
+copyToClipboard = (text) ->
+  temp = document.createElement("input")
+  temp.setAttribute("value", text)
+  document.body.appendChild(temp)
+  temp.select()
+  document.execCommand("copy")
+  document.body.removeChild(temp)
+
 $ ->
   urlParams = getParams()
   console.log(urlParams)
@@ -929,11 +955,11 @@ $ ->
   linkDistanceInput = parseInt(urlParams['linkdistance'], 10) 
   linkDistanceMultiplier = linkDistanceInput / 100.0
   linkStrengthInput = parseInt(urlParams['linkstrength'], 10)
-  linkStrengthValue = linkStrength / 10.0
+  linkStrengthValue = linkStrengthInput / 10.0
   radiusInput = parseInt(urlParams['radius'], 10)
   radiusMultiplier = radiusInput / 100.0
-  layoutRadiusInput = parseInt(urlParams['layoutradius'], 10)
-  myNetwork = Network(layout:layout, movement: movement, filter: filter, sort: sort, chargeDivider: chargeDivider)
+  layoutRadius = parseInt(urlParams['layoutradius'], 10)
+  myNetwork = Network(layout:layout, movement: movement, filter: filter, sort: sort, chargeDivider: chargeDivider, linkDistanceMultiplier: linkDistanceMultiplier, linkStrengthValue: linkStrengthValue, radiusMultiplier: radiusMultiplier, radialLayoutRadius: layoutRadius)
 
   d3.selectAll("#layouts a").on "click", (d) ->
     newLayout = d3.select(this).attr("id")
@@ -943,7 +969,7 @@ $ ->
 
   if layout?
     activate("layouts", layout, "force")
-  showHideRadialLayoutInput(myNetwork.layout)
+  showHideRadialLayoutInput(layout)
 
   d3.selectAll("#movement a").on "click", (d) ->
     newMovement = d3.select(this).attr("id")
@@ -1001,6 +1027,10 @@ $ ->
     newRadius = $(this).val()
     myNetwork.setRadialLayoutRadius(newRadius)
 
+  if type(layoutRadius) == "number" && !isNaN(layoutRadius)
+    d3.select("#layoutRadiusInput").property("value", layoutRadius)
+    console.log("layout radius:",layoutRadius)
+
   $("#song_select").on "change", (e) ->
     songFile = $(this).val()
     d3.json "data/#{songFile}", (json) ->
@@ -1018,6 +1048,11 @@ $ ->
     myNetwork.removeLegend()
     downloadSVG()
     myNetwork.updateLegend()
+
+  $("#graphLink").on "click", (e) ->
+    $(this).text('Copied to clipboard')
+    link = generateGraphLink()
+    copyToClipboard(link)
 
   updateGraphOptions = (options) ->
     console.log("updating graph options")
