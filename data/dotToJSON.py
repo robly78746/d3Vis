@@ -1,7 +1,8 @@
 #conda install networkx
 #conda install graphviz
 #conda install -c conda-forge pydotplus
-
+#pip install pygraphviz
+#tested with python 3.4
 import networkx as nx
 from networkx.readwrite import json_graph
 from networkx.drawing.nx_pydot import read_dot
@@ -46,9 +47,11 @@ if len(sys.argv) == 3:
             dot_graph = pgv.AGraph(dotFilePath)
             graph_netx = from_agraph(dot_graph)
         except (ValueError, DotError) as e:
-            graph_netx = read_dot(dotFilePath)
-            print(dotFile + ' not in graphviz format')
-            continue
+            try:
+                graph_netx = read_dot(dotFilePath)
+            except (ValueError, DotError) as f:
+                print(dotFile + ' not in graphviz format')
+                continue
         
         graph_json = json_graph.node_link_data(graph_netx)#dot_graph)
         filename = dotFile[:dotFile.rfind('.')]

@@ -1,5 +1,5 @@
 var casper = require('casper').create();
-var data = require('data/data.json');
+var data = require('data.json');
 var fs = require('fs');
 const svgDirectory = 'svgs/';
 const svgFileExtension = '.svg';

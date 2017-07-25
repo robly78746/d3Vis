@@ -1,0 +1,4 @@
+NetworkX==1.11
+graphviz==0.8
+pydotplus==2.0.2
+pygraphviz==1.3.1

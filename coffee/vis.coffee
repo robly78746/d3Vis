@@ -656,7 +656,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
 
   updateCenters = (registerKeys, combinationalKeys) ->
     if layout == "radial"
-      groupCenters = RadialPlacement().center({"x":width/2, "y":height / 2 - 100})
+      groupCenters = RadialPlacement().center({"x":width/2, "y":height / 2})
         .radius(radialLayoutRadius).keys(combinationalKeys).radialKeys(registerKeys)
 
   # Removes links from allLinks whose
@@ -1072,5 +1072,5 @@ $ ->
     updateGraphOptions(json)
     d3.select("#song_select").selectAll("option").each(checkOption)
     selectedGraph = $("#song_select").val()
-    d3.json "data/#{selectedGraph}", (json) ->
+    d3.json "data/json/#{selectedGraph}", (json) ->
       myNetwork("#vis", json)

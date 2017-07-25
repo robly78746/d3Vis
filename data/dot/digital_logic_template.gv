@@ -1,0 +1,16 @@
+graph {
+	register1 -- adder1 [delay=5];
+	register2 -- adder1 [delay=5];
+	adder1 -- register3 [delay=10];
+	register1 -- not1 [delay=1];
+	not1 -- register3 [delay=1];
+	register1 -- adder2 [delay=30];
+	register3 -- adder2 [delay=40];
+	adder2 -- register2 [delay=70];
+	adder1 [size=8,type=adder];
+	register1 [size=8,type=register];
+	register2 [size=8,type=register];
+	register3 [size=8,type=register];
+	not1 [size=1,type=not];
+	adder2 [size=16,type=register];
+}
