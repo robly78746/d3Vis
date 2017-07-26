@@ -10,7 +10,7 @@ Modified from source code from [How to Make an Interactive Network Visualization
   ```
 2. Clone or download this repo
 3. Install python packages
-  1. Navigate to setup folder of this repo and run 
+	1. Navigate to setup folder of this repo and run 
   ```
   pip install -r requirements.txt
   ```
