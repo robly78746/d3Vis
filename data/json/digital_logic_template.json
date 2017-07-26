@@ -1,0 +1,97 @@
+{
+  "multigraph": true,
+  "directed": false,
+  "nodes": [
+    {
+      "id": "register2",
+      "size": "8",
+      "type": "register"
+    },
+    {
+      "id": "adder2",
+      "size": "16",
+      "type": "register"
+    },
+    {
+      "id": "not1",
+      "size": "1",
+      "type": "not"
+    },
+    {
+      "id": "adder1",
+      "size": "8",
+      "type": "adder"
+    },
+    {
+      "id": "register3",
+      "size": "8",
+      "type": "register"
+    },
+    {
+      "id": "register1",
+      "size": "8",
+      "type": "register"
+    }
+  ],
+  "links": [
+    {
+      "key": 0,
+      "delay": "70",
+      "target": 1,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "delay": "5",
+      "target": 3,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "delay": "40",
+      "target": 4,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "delay": "30",
+      "target": 5,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "delay": "1",
+      "target": 4,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "delay": "1",
+      "target": 5,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "delay": "10",
+      "target": 4,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "delay": "5",
+      "target": 5,
+      "source": 3
+    }
+  ],
+  "graph": {
+    "name": "",
+    "edge": {
+      "delay": ""
+    },
+    "node": {
+      "size": "",
+      "type": ""
+    },
+    "graph": {}
+  }
+}

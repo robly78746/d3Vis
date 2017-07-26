@@ -1,0 +1,287 @@
+{
+  "multigraph": true,
+  "directed": false,
+  "nodes": [
+    {
+      "id": "b"
+    },
+    {
+      "id": "n"
+    },
+    {
+      "id": "d"
+    },
+    {
+      "id": "z"
+    },
+    {
+      "id": "a"
+    },
+    {
+      "id": "o"
+    },
+    {
+      "id": "h"
+    },
+    {
+      "id": "q"
+    },
+    {
+      "id": "f"
+    },
+    {
+      "id": "i"
+    },
+    {
+      "id": "k"
+    },
+    {
+      "id": "m"
+    },
+    {
+      "id": "t"
+    },
+    {
+      "id": "j"
+    },
+    {
+      "id": "g"
+    },
+    {
+      "id": "e"
+    },
+    {
+      "id": "c"
+    },
+    {
+      "id": "l"
+    },
+    {
+      "id": "p"
+    },
+    {
+      "id": "r"
+    },
+    {
+      "id": "s"
+    }
+  ],
+  "links": [
+    {
+      "key": 0,
+      "target": 15,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 16,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 4,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 13,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 19,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 10,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 11,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 7,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 14,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "target": 8,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "target": 4,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "target": 20,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "target": 12,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "target": 16,
+      "source": 4
+    },
+    {
+      "key": 0,
+      "target": 6,
+      "source": 5
+    },
+    {
+      "key": 0,
+      "target": 18,
+      "source": 5
+    },
+    {
+      "key": 0,
+      "target": 20,
+      "source": 5
+    },
+    {
+      "key": 0,
+      "target": 11,
+      "source": 5
+    },
+    {
+      "key": 0,
+      "target": 17,
+      "source": 5
+    },
+    {
+      "key": 0,
+      "target": 15,
+      "source": 6
+    },
+    {
+      "key": 0,
+      "target": 8,
+      "source": 6
+    },
+    {
+      "key": 0,
+      "target": 17,
+      "source": 6
+    },
+    {
+      "key": 0,
+      "target": 18,
+      "source": 7
+    },
+    {
+      "key": 0,
+      "target": 19,
+      "source": 7
+    },
+    {
+      "key": 0,
+      "target": 12,
+      "source": 7
+    },
+    {
+      "key": 0,
+      "target": 13,
+      "source": 8
+    },
+    {
+      "key": 0,
+      "target": 16,
+      "source": 8
+    },
+    {
+      "key": 0,
+      "target": 14,
+      "source": 8
+    },
+    {
+      "key": 0,
+      "target": 9,
+      "source": 8
+    },
+    {
+      "key": 0,
+      "target": 13,
+      "source": 9
+    },
+    {
+      "key": 0,
+      "target": 11,
+      "source": 9
+    },
+    {
+      "key": 0,
+      "target": 17,
+      "source": 9
+    },
+    {
+      "key": 0,
+      "target": 14,
+      "source": 10
+    },
+    {
+      "key": 0,
+      "target": 13,
+      "source": 10
+    },
+    {
+      "key": 0,
+      "target": 19,
+      "source": 10
+    },
+    {
+      "key": 0,
+      "target": 13,
+      "source": 11
+    },
+    {
+      "key": 0,
+      "target": 17,
+      "source": 11
+    },
+    {
+      "key": 0,
+      "target": 18,
+      "source": 11
+    },
+    {
+      "key": 0,
+      "target": 19,
+      "source": 12
+    },
+    {
+      "key": 0,
+      "target": 18,
+      "source": 12
+    },
+    {
+      "key": 0,
+      "target": 16,
+      "source": 15
+    },
+    {
+      "key": 0,
+      "target": 20,
+      "source": 18
+    }
+  ],
+  "graph": {
+    "name": "",
+    "edge": {},
+    "node": {},
+    "graph": {}
+  }
+}

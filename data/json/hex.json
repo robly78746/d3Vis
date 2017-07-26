@@ -1,0 +1,99 @@
+{
+  "multigraph": true,
+  "directed": false,
+  "nodes": [
+    {
+      "id": "b",
+      "size": "32"
+    },
+    {
+      "id": "e",
+      "size": "32"
+    },
+    {
+      "id": "c",
+      "size": "8"
+    },
+    {
+      "id": "d",
+      "size": "16"
+    },
+    {
+      "id": "a",
+      "size": "16"
+    },
+    {
+      "id": "f"
+    }
+  ],
+  "links": [
+    {
+      "key": 0,
+      "delay": "15",
+      "target": 2,
+      "source": 0
+    },
+    {
+      "penwidth": "3.0",
+      "delay": "10",
+      "key": 0,
+      "color": "red",
+      "target": 3,
+      "source": 0
+    },
+    {
+      "penwidth": "3.0",
+      "delay": "10",
+      "key": 0,
+      "color": "red",
+      "target": 4,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "delay": "30",
+      "target": 5,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "delay": "20",
+      "target": 3,
+      "source": 1
+    },
+    {
+      "penwidth": "3.0",
+      "delay": "10",
+      "key": 0,
+      "color": "red",
+      "target": 5,
+      "source": 2
+    },
+    {
+      "penwidth": "3.0",
+      "delay": "10",
+      "key": 0,
+      "color": "red",
+      "target": 3,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "delay": "50",
+      "target": 4,
+      "source": 3
+    }
+  ],
+  "graph": {
+    "name": "",
+    "edge": {
+      "penwidth": "",
+      "delay": "",
+      "color": ""
+    },
+    "node": {
+      "size": ""
+    },
+    "graph": {}
+  }
+}

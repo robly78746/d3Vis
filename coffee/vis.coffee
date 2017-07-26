@@ -117,6 +117,9 @@ RadialPlacement = () ->
 
   return placement
 
+validNumber = (num) ->
+  return num? && !isNaN(num)  
+
 Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius} = {}) ->
   # variables we want to access
   # in multiple places of Network
@@ -141,13 +144,19 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   filter ?= "all"
   sort ?= "none"
   movement ?= "dynamic"
-  chargeDivider ?= 2
-  linkDistanceMultiplier ?= 1
-  linkStrengthValue ?= 1
+  if !validNumber(chargeDivider)
+    chargeDivider = 2
+  if !validNumber(linkDistanceMultiplier)
+    linkDistanceMultiplier = 1
+  if !validNumber(linkStrengthValue)
+    linkStrengthValue = 1
   # radius multiplier used to enlarge/shrink radius of node to display
-  radiusMultiplier ?= 1
+  if !validNumber(radiusMultiplier)
+    radiusMultiplier = 1
   # radius used in radial layout
-  radialLayoutRadius ?= 300
+  if !validNumber(radialLayoutRadius)
+    radialLayoutRadius = 300
+  console.log(layout, filter, sort, movement, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius)
   # groupCenters will store our radial layout for
   # the group by artist layout.
   groupCenters = null
@@ -171,7 +180,6 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   network = (selection, data) ->
     # format our data
     allData = setupData(data)
-
     # create our svg and groups
     vis = d3.select(selection).append("svg")
       .attr("width", width)
@@ -909,7 +917,6 @@ getParameterByName = (name, url) ->
 getParams = () ->
   query = window.location.search.substring(1)
   raw_vars = query.split("&")
-
   params = {}
   for v in raw_vars
     [key, val] = v.split("=")
@@ -1033,7 +1040,7 @@ $ ->
 
   $("#song_select").on "change", (e) ->
     songFile = $(this).val()
-    d3.json "data/#{songFile}", (json) ->
+    d3.json "data/json/#{songFile}", (json) ->
       myNetwork.updateData(json)
   
   $("#search").keyup () ->

@@ -1,0 +1,56 @@
+{
+  "multigraph": true,
+  "directed": true,
+  "nodes": [
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    },
+    {
+      "id": "d"
+    },
+    {
+      "id": "f"
+    },
+    {
+      "id": "a"
+    }
+  ],
+  "links": [
+    {
+      "key": 0,
+      "target": 1,
+      "source": 0
+    },
+    {
+      "key": 0,
+      "target": 2,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 1,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "target": 0,
+      "source": 4
+    },
+    {
+      "key": 0,
+      "target": 3,
+      "source": 4
+    }
+  ],
+  "graph": {
+    "name": "subgraph_example",
+    "edge": {},
+    "node": {},
+    "graph": {
+      "label": ""
+    }
+  }
+}

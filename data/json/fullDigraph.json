@@ -1,0 +1,71 @@
+{
+  "multigraph": true,
+  "directed": true,
+  "nodes": [
+    {
+      "id": "b"
+    },
+    {
+      "id": "e"
+    },
+    {
+      "id": "c"
+    },
+    {
+      "id": "a"
+    }
+  ],
+  "links": [
+    {
+      "key": 0,
+      "weight": "0.7",
+      "label": "0.7",
+      "target": 0,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "weight": "0.1",
+      "label": "0.1",
+      "target": 1,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "weight": "0.6",
+      "label": "0.6",
+      "target": 0,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "weight": "0.6",
+      "label": "0.6",
+      "target": 1,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "weight": "0.2",
+      "label": "0.2",
+      "target": 0,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "weight": "0.4",
+      "label": "0.4",
+      "target": 2,
+      "source": 3
+    }
+  ],
+  "graph": {
+    "name": "",
+    "edge": {
+      "weight": "",
+      "label": ""
+    },
+    "node": {},
+    "graph": {}
+  }
+}
