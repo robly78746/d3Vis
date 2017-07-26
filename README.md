@@ -37,7 +37,7 @@ runServer.cmd
 This command assumes you are running Python 3 or higher. This will run a server on port 8000 by default. You may change this port number in runServer.cmd if you wish.
 
 3. In a browser, you should be able to see the webpage at http://localhost:8000/
-![webpage](readmePics/webpage.png)
+![webpage](readmePics/webpage.PNG)
 
 4. From the page, you should be able to view each json file listed in data.json. If you generate new json files, you can hard reload the page to force the browser to grab the new data.json by opening up the console and holding down the reload button.
 
