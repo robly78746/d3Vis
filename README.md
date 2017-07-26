@@ -40,6 +40,7 @@ This command assumes you are running Python 3 or higher. This will run a server 
 ![webpage](readmePics/webpage.PNG)
 
 4. From the page, you should be able to view each json file listed in data.json. If you generate new json files, you can hard reload the page to force the browser to grab the new data.json by opening up the console and holding down the reload button.
+![hard reload](readmePics/hardReload.gif)
 
 ### Generating SVG's
 1. Once you've decided on the configuration, copy the link to the graph to your clipboard by clicking "Link To Graph".
