@@ -900,31 +900,21 @@ showHideRadialLayoutInput = (layout) ->
   else
     hideRadialInput()
 
-# https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-getParameterByName = (name, url) -> 
-    if (!url) 
-      url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
-    results = regex.exec(url);
-    if (!results) 
-      return null
-    if (!results[2]) 
-      return null
-    return decodeURIComponent(results[2].replace(/\+/g, " "));	
-
 # https://stelfox.net/blog/2013/12/access-get-parameters-with-coffeescript/
 getParams = () ->
   query = window.location.search.substring(1)
   raw_vars = query.split("&")
   params = {}
+  params['port'] = window.location.port
+  params['hostname'] = window.location.hostname
   for v in raw_vars
     [key, val] = v.split("=")
     params[key] = decodeURIComponent(val)
   params
 
-generateGraphLink = () ->
-  baseURL = 'localhost:8000/?'
+generateGraphLink = (hostname, port) ->
+  port = if port? then ':' + port else ''
+  baseURL = hostname + port + '/?'
   parameters = {}
   parameters['graph'] = $('#song_select').val()
   parameters['layout'] = d3.selectAll("#layouts a").filter(".active").attr("id")
@@ -952,6 +942,8 @@ copyToClipboard = (text) ->
 $ ->
   urlParams = getParams()
   console.log(urlParams)
+  hostname = urlParams['hostname']
+  port = urlParams['port']
   graph = urlParams['graph']
   layout = urlParams['layout']
   movement = urlParams['movement']
@@ -1058,7 +1050,7 @@ $ ->
 
   $("#graphLink").on "click", (e) ->
     $(this).text('Copied to clipboard')
-    link = generateGraphLink()
+    link = generateGraphLink(hostname, port)
     copyToClipboard(link)
 
   updateGraphOptions = (options) ->
