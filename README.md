@@ -3,21 +3,21 @@ Modified from source code from [How to Make an Interactive Network Visualization
 
 ## Setup
 1. Set up a Python environment with Python 3.4
-  * You can download Python 3.4.3 [here](https://www.python.org/downloads/release/python-343/) and use [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) to create an environment
-  * Or you can download Anaconda [here](https://www.continuum.io/downloads) and create an environment with most of the packages installed. Navigate to the setup folder and run
-  ```
-  conda env create -f environment.yml
-  ```
+	* You can download Python 3.4.3 [here](https://www.python.org/downloads/release/python-343/) and use [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) to create an environment
+	* Or you can download Anaconda [here](https://www.continuum.io/downloads) and create an environment with most of the packages installed. Navigate to the setup folder and run
+	```
+	conda env create -f environment.yml
+	```
 2. Clone or download this repo
 3. Install python packages
 	1. Navigate to setup folder of this repo and run 
-  ```
-  pip install -r requirements.txt
-  ```
-  2. Run 
-  ```
-  pip install pygraphviz-1.3.1-cp34-none-win_amd64.whl
-  ```
+	```
+	pip install -r requirements.txt
+	```
+	2. Run 
+	```
+	pip install pygraphviz-1.3.1-cp34-none-win_amd64.whl
+	```
 4. Install [CasperJS](http://casperjs.org/)
   
 ## Usage
