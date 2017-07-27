@@ -1,13 +1,32 @@
 {
-  "multigraph": true,
-  "directed": true,
+  "links": [
+    {
+      "source": 1,
+      "key": 0,
+      "target": 2
+    },
+    {
+      "source": 2,
+      "key": 0,
+      "target": 0
+    },
+    {
+      "source": 3,
+      "key": 0,
+      "target": 1
+    },
+    {
+      "source": 3,
+      "key": 0,
+      "target": 4
+    },
+    {
+      "source": 4,
+      "key": 0,
+      "target": 2
+    }
+  ],
   "nodes": [
-    {
-      "id": "b"
-    },
-    {
-      "id": "c"
-    },
     {
       "id": "d"
     },
@@ -15,36 +34,17 @@
       "id": "f"
     },
     {
+      "id": "c"
+    },
+    {
       "id": "a"
+    },
+    {
+      "id": "b"
     }
   ],
-  "links": [
-    {
-      "key": 0,
-      "target": 1,
-      "source": 0
-    },
-    {
-      "key": 0,
-      "target": 2,
-      "source": 1
-    },
-    {
-      "key": 0,
-      "target": 1,
-      "source": 3
-    },
-    {
-      "key": 0,
-      "target": 0,
-      "source": 4
-    },
-    {
-      "key": 0,
-      "target": 3,
-      "source": 4
-    }
-  ],
+  "directed": true,
+  "multigraph": true,
   "graph": {
     "name": "subgraph_example",
     "edge": {},

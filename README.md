@@ -1,4 +1,4 @@
-# Custom D3 Visualization
+# Custom [D3](https://github.com/d3/d3) Visualization
 Modified from source code from [How to Make an Interactive Network Visualization](https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualization/)
 
 ## Setup
@@ -28,7 +28,7 @@ Modified from source code from [How to Make an Interactive Network Visualization
 ```
 convertDotToJSON.cmd
 ```
-This will generate a data.json containing the names of the json files and place the json files in a folder called json.
+This will generate a data.json containing the names of the json files and place the json files in a folder called json. You will need to run this every time you update or add new files to the dot folder.
 
 2. In the top directory, run 
 ```
