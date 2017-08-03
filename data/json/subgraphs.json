@@ -3,54 +3,54 @@
     {
       "source": 1,
       "key": 0,
-      "target": 2
+      "target": 3
     },
     {
       "source": 2,
       "key": 0,
-      "target": 0
-    },
-    {
-      "source": 3,
-      "key": 0,
       "target": 1
     },
     {
-      "source": 3,
+      "source": 2,
       "key": 0,
       "target": 4
     },
     {
+      "source": 3,
+      "key": 0,
+      "target": 0
+    },
+    {
       "source": 4,
       "key": 0,
-      "target": 2
+      "target": 3
     }
   ],
+  "directed": true,
+  "graph": {
+    "edge": {},
+    "name": "subgraph_example",
+    "graph": {
+      "label": ""
+    },
+    "node": {}
+  },
+  "multigraph": true,
   "nodes": [
     {
       "id": "d"
     },
     {
-      "id": "f"
-    },
-    {
-      "id": "c"
+      "id": "b"
     },
     {
       "id": "a"
     },
     {
-      "id": "b"
+      "id": "c"
+    },
+    {
+      "id": "f"
     }
-  ],
-  "directed": true,
-  "multigraph": true,
-  "graph": {
-    "name": "subgraph_example",
-    "edge": {},
-    "node": {},
-    "graph": {
-      "label": ""
-    }
-  }
+  ]
 }

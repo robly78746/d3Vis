@@ -1,4 +1,6 @@
 root = exports ? this
+
+# determines the type of an object
 type = (obj) ->
   if obj == undefined or obj == null
     return String obj
@@ -120,7 +122,7 @@ RadialPlacement = () ->
 validNumber = (num) ->
   return num? && !isNaN(num)  
 
-Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius} = {}) ->
+Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius, linkColor} = {}) ->
   # variables we want to access
   # in multiple places of Network
   width = 960
@@ -156,6 +158,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   # radius used in radial layout
   if !validNumber(radialLayoutRadius)
     radialLayoutRadius = 300
+  linkColor ?= "#999999"
   console.log(layout, filter, sort, movement, chargeDivider, linkDistanceMultiplier, linkStrengthValue, radiusMultiplier, radialLayoutRadius)
   # groupCenters will store our radial layout for
   # the group by artist layout.
@@ -305,6 +308,10 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
     setLinkStrength(newLinkStrength)
     update()
 
+  network.setLinkColor = (newLinkColor) ->
+    setLinkColor(newLinkColor)
+    updateLinkColor()
+
   network.setRadialLayoutRadius = (newRadius) ->
     force.stop()
     setRadialLayoutRadius(newRadius)
@@ -412,6 +419,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
       l.target = nodesMap.get(key)
       weight = if l.weight? then l.weight else 5
       l.linkDistance = linkDistance.invert(weight)
+      l.color = linkColor
       # linkedByIndex is used for link sorting
       linkedByIndex["#{l.source.id},#{l.target.id}"] = 1
       data.nodes.forEach (n) ->
@@ -706,13 +714,17 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
       .data(curLinksData, (d) -> "#{d.source.id}_#{d.target.id}")
     link.enter().append("line")
       .attr("class", "link")
-      .attr("stroke", "gray")
+      .attr("stroke", (d) -> d.color)
       .attr("stroke-opacity", 0.8)
       .attr("x1", (d) -> d.source.x)
       .attr("y1", (d) -> d.source.y)
       .attr("x2", (d) -> d.target.x)
       .attr("y2", (d) -> d.target.y)
     link.exit().remove()
+
+  # update link color
+  updateLinkColor = () ->
+    link.attr("stroke", (d) -> d.color)	
 
   # switches force to new layout parameters
   setLayout = (newLayout) ->
@@ -750,6 +762,11 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   setLinkStrength = (newLinkStrength) ->
     linkStrengthValue = newLinkStrength
     force.linkStrength(linkStrengthValue)
+
+  setLinkColor = (newLinkColor) ->
+    linkColor = newLinkColor
+    for link in curLinksData
+      link.color = linkColor
 
   setRadialLayoutRadius = (newRadialLayoutRadius) ->
     radialLayoutRadius = newRadialLayoutRadius
@@ -819,7 +836,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
     # higlight connected links
     if link
       link.attr("stroke", (l) ->
-        if l.source == d || l.target == d then "#555" else "gray"
+        if l.source == d || l.target == d then "#555" else l.color
       )
         .attr("stroke-opacity", (l) ->
           if l.source == d or l.target == d then 1.0 else 0.5
@@ -847,7 +864,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
     node.style("stroke", (n) -> if !n.searched then strokeFor(n) else "#555")
       .style("stroke-width", (n) -> if !n.searched then 1.0 else 2.0)
     if link
-      link.attr("stroke", "gray")
+      link.attr("stroke", (l) -> l.color)
         .attr("stroke-opacity", 0.8)
 
   # Final act of Network() function is to return the inner 'network()' function.
@@ -924,10 +941,11 @@ generateGraphLink = (hostname, port) ->
   parameters['charge'] = $("#charge").val()
   parameters['linkdistance'] = $("#linkDistance").val()
   parameters['linkstrength'] = $("#linkStrength").val()
+  parameters['linkcolor'] = $("#linkColor").val()
   parameters['radius'] = $("#radiusMultiplier").val()
   parameters['layoutradius'] = $("#layoutRadiusInput").val()
   parameterList = []
-  parameterList.push(paramName + '=' + value) for paramName, value of parameters
+  parameterList.push(encodeURIComponent(paramName) + '=' + encodeURIComponent(value)) for paramName, value of parameters
   console.log(parameterList.join('&'))
   return baseURL + parameterList.join('&')
 
@@ -955,10 +973,11 @@ $ ->
   linkDistanceMultiplier = linkDistanceInput / 100.0
   linkStrengthInput = parseInt(urlParams['linkstrength'], 10)
   linkStrengthValue = linkStrengthInput / 10.0
+  linkColor = urlParams['linkcolor']
   radiusInput = parseInt(urlParams['radius'], 10)
   radiusMultiplier = radiusInput / 100.0
   layoutRadius = parseInt(urlParams['layoutradius'], 10)
-  myNetwork = Network(layout:layout, movement: movement, filter: filter, sort: sort, chargeDivider: chargeDivider, linkDistanceMultiplier: linkDistanceMultiplier, linkStrengthValue: linkStrengthValue, radiusMultiplier: radiusMultiplier, radialLayoutRadius: layoutRadius)
+  myNetwork = Network(layout:layout, movement: movement, filter: filter, sort: sort, chargeDivider: chargeDivider, linkDistanceMultiplier: linkDistanceMultiplier, linkStrengthValue: linkStrengthValue, radiusMultiplier: radiusMultiplier, radialLayoutRadius: layoutRadius, linkColor: linkColor)
 
   d3.selectAll("#layouts a").on "click", (d) ->
     newLayout = d3.select(this).attr("id")
@@ -1015,6 +1034,13 @@ $ ->
   if type(linkStrengthInput) == "number" && !isNaN(linkStrengthInput)
     d3.select("#linkStrength").property("value", linkStrengthInput)
 
+  $("#linkColor").on "change", (e) ->
+    newLinkColor = $(this).val()
+    myNetwork.setLinkColor(newLinkColor)  
+
+  if linkColor?
+    d3.select("#linkColor").property("value", linkColor)
+
   $("#radiusMultiplier").on "input", (e) ->
     newRadiusMultiplier = $(this).val()
     myNetwork.setRadiusMultiplier(newRadiusMultiplier / 100.0)
@@ -1060,6 +1086,7 @@ $ ->
     select.enter().append("option").attr("value", (d) -> d).text((d) -> d)
     select.exit().remove()
 
+  # sets drop down menu to the selected graph
   checkOption = (e) ->
     if e == graph
       d3.select(this).attr("selected", "")
@@ -1067,7 +1094,7 @@ $ ->
       d3.select(this).attr("selected", null)
 
   d3.json "data/data.json", (json) ->
-    console.log("data called")
+    console.log("data to load:", json)
     updateGraphOptions(json)
     d3.select("#song_select").selectAll("option").each(checkOption)
     selectedGraph = $("#song_select").val()

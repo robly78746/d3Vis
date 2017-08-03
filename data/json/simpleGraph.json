@@ -3,12 +3,7 @@
     {
       "source": 0,
       "key": 0,
-      "target": 2
-    },
-    {
-      "source": 1,
-      "key": 0,
-      "target": 2
+      "target": 3
     },
     {
       "source": 1,
@@ -16,14 +11,19 @@
       "target": 3
     },
     {
-      "source": 2,
+      "source": 1,
       "key": 0,
-      "target": 3
+      "target": 2
     },
     {
       "source": 2,
       "key": 0,
       "target": 4
+    },
+    {
+      "source": 2,
+      "key": 0,
+      "target": 3
     },
     {
       "source": 3,
@@ -31,29 +31,29 @@
       "target": 4
     }
   ],
+  "directed": false,
+  "graph": {
+    "edge": {},
+    "name": "",
+    "graph": {},
+    "node": {}
+  },
+  "multigraph": true,
   "nodes": [
     {
       "id": "d"
     },
     {
-      "id": "e"
-    },
-    {
-      "id": "c"
+      "id": "b"
     },
     {
       "id": "a"
     },
     {
-      "id": "b"
+      "id": "c"
+    },
+    {
+      "id": "e"
     }
-  ],
-  "directed": false,
-  "multigraph": true,
-  "graph": {
-    "name": "",
-    "edge": {},
-    "node": {},
-    "graph": {}
-  }
+  ]
 }

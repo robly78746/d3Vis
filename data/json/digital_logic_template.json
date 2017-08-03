@@ -2,96 +2,96 @@
   "links": [
     {
       "source": 0,
+      "delay": "5",
       "key": 0,
-      "target": 2,
-      "delay": "70"
+      "target": 1
     },
     {
       "source": 0,
+      "delay": "30",
       "key": 0,
-      "target": 5,
-      "delay": "5"
+      "target": 5
+    },
+    {
+      "source": 0,
+      "delay": "1",
+      "key": 0,
+      "target": 2
     },
     {
       "source": 1,
+      "delay": "5",
       "key": 0,
-      "target": 3,
-      "delay": "1"
+      "target": 3
     },
     {
       "source": 1,
+      "delay": "10",
       "key": 0,
-      "target": 4,
-      "delay": "1"
+      "target": 4
     },
     {
       "source": 2,
+      "delay": "1",
       "key": 0,
-      "target": 3,
-      "delay": "40"
-    },
-    {
-      "source": 2,
-      "key": 0,
-      "target": 4,
-      "delay": "30"
+      "target": 4
     },
     {
       "source": 3,
+      "delay": "70",
       "key": 0,
-      "target": 5,
-      "delay": "10"
+      "target": 5
     },
     {
       "source": 4,
+      "delay": "40",
       "key": 0,
-      "target": 5,
-      "delay": "5"
-    }
-  ],
-  "nodes": [
-    {
-      "id": "register2",
-      "size": "8",
-      "type": "register"
-    },
-    {
-      "id": "not1",
-      "size": "1",
-      "type": "not"
-    },
-    {
-      "id": "adder2",
-      "size": "16",
-      "type": "register"
-    },
-    {
-      "id": "register3",
-      "size": "8",
-      "type": "register"
-    },
-    {
-      "id": "register1",
-      "size": "8",
-      "type": "register"
-    },
-    {
-      "id": "adder1",
-      "size": "8",
-      "type": "adder"
+      "target": 5
     }
   ],
   "directed": false,
-  "multigraph": true,
   "graph": {
-    "name": "",
     "edge": {
       "delay": ""
     },
+    "name": "",
+    "graph": {},
     "node": {
       "size": "",
       "type": ""
+    }
+  },
+  "multigraph": true,
+  "nodes": [
+    {
+      "size": "8",
+      "type": "register",
+      "id": "register1"
     },
-    "graph": {}
-  }
+    {
+      "size": "8",
+      "type": "adder",
+      "id": "adder1"
+    },
+    {
+      "size": "1",
+      "type": "not",
+      "id": "not1"
+    },
+    {
+      "size": "8",
+      "type": "register",
+      "id": "register2"
+    },
+    {
+      "size": "8",
+      "type": "register",
+      "id": "register3"
+    },
+    {
+      "size": "16",
+      "type": "register",
+      "id": "adder2"
+    }
+  ]
 }

@@ -8,39 +8,39 @@
     {
       "source": 1,
       "key": 0,
-      "target": 0
+      "target": 3
     },
     {
       "source": 2,
       "key": 0,
-      "target": 3
+      "target": 1
     },
     {
       "source": 3,
       "key": 0,
-      "target": 1
+      "target": 0
     }
   ],
+  "directed": true,
+  "graph": {
+    "edge": {},
+    "name": "",
+    "graph": {},
+    "node": {}
+  },
+  "multigraph": true,
   "nodes": [
     {
       "id": "d"
     },
     {
-      "id": "c"
+      "id": "b"
     },
     {
       "id": "a"
     },
     {
-      "id": "b"
+      "id": "c"
     }
-  ],
-  "directed": true,
-  "multigraph": true,
-  "graph": {
-    "name": "",
-    "edge": {},
-    "node": {},
-    "graph": {}
-  }
+  ]
 }

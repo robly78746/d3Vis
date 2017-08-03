@@ -2,73 +2,76 @@
   "links": [
     {
       "source": 0,
+      "delay": "20",
       "key": 0,
-      "target": 3,
-      "delay": "30"
+      "target": 3
     },
     {
-      "penwidth": "3.0",
-      "target": 1,
-      "key": 0,
       "source": 0,
-      "color": "red",
-      "delay": "10"
+      "delay": "30",
+      "key": 0,
+      "target": 2
     },
     {
-      "penwidth": "3.0",
-      "target": 5,
-      "key": 0,
+      "color": "red",
       "source": 1,
-      "color": "red",
-      "delay": "10"
+      "penwidth": "3.0",
+      "key": 0,
+      "delay": "10",
+      "target": 3
     },
     {
       "source": 1,
+      "delay": "15",
       "key": 0,
-      "target": 4,
-      "delay": "15"
+      "target": 4
     },
     {
-      "source": 2,
-      "key": 0,
-      "target": 5,
-      "delay": "50"
-    },
-    {
-      "penwidth": "3.0",
-      "target": 4,
-      "key": 0,
-      "source": 2,
       "color": "red",
-      "delay": "10"
+      "source": 1,
+      "penwidth": "3.0",
+      "key": 0,
+      "delay": "10",
+      "target": 5
+    },
+    {
+      "color": "red",
+      "source": 2,
+      "penwidth": "3.0",
+      "key": 0,
+      "delay": "10",
+      "target": 4
     },
     {
       "source": 3,
+      "delay": "50",
       "key": 0,
-      "target": 5,
-      "delay": "20"
+      "target": 5
     },
     {
-      "penwidth": "3.0",
-      "target": 5,
-      "key": 0,
-      "source": 4,
       "color": "red",
-      "delay": "10"
+      "source": 3,
+      "penwidth": "3.0",
+      "key": 0,
+      "delay": "10",
+      "target": 4
     }
   ],
+  "directed": false,
+  "graph": {
+    "edge": {
+      "color": "",
+      "delay": "",
+      "penwidth": ""
+    },
+    "name": "",
+    "graph": {},
+    "node": {
+      "size": ""
+    }
+  },
+  "multigraph": true,
   "nodes": [
-    {
-      "id": "f"
-    },
-    {
-      "size": "8",
-      "id": "c"
-    },
-    {
-      "size": "16",
-      "id": "a"
-    },
     {
       "size": "32",
       "id": "e"
@@ -78,22 +81,19 @@
       "id": "b"
     },
     {
+      "id": "f"
+    },
+    {
       "size": "16",
       "id": "d"
+    },
+    {
+      "size": "8",
+      "id": "c"
+    },
+    {
+      "size": "16",
+      "id": "a"
     }
-  ],
-  "directed": false,
-  "multigraph": true,
-  "graph": {
-    "name": "",
-    "edge": {
-      "color": "",
-      "delay": "",
-      "penwidth": ""
-    },
-    "node": {
-      "size": ""
-    },
-    "graph": {}
-  }
+  ]
 }
