@@ -16,6 +16,62 @@ type = (obj) ->
   }
   return classToType[Object.prototype.toString.call(obj)]
 
+Colors = {}
+Colors.names = {
+    aqua: "#00ffff",
+    azure: "#f0ffff",
+    beige: "#f5f5dc",
+    black: "#000000",
+    blue: "#0000ff",
+    brown: "#a52a2a",
+    cyan: "#00ffff",
+    darkblue: "#00008b",
+    darkcyan: "#008b8b",
+    darkgrey: "#a9a9a9",
+    darkgreen: "#006400",
+    darkkhaki: "#bdb76b",
+    darkmagenta: "#8b008b",
+    darkolivegreen: "#556b2f",
+    darkorange: "#ff8c00",
+    darkorchid: "#9932cc",
+    darkred: "#8b0000",
+    darksalmon: "#e9967a",
+    darkviolet: "#9400d3",
+    fuchsia: "#ff00ff",
+    gold: "#ffd700",
+    green: "#008000",
+    indigo: "#4b0082",
+    khaki: "#f0e68c",
+    lightblue: "#add8e6",
+    lightcyan: "#e0ffff",
+    lightgreen: "#90ee90",
+    lightgrey: "#d3d3d3",
+    lightpink: "#ffb6c1",
+    lightyellow: "#ffffe0",
+    lime: "#00ff00",
+    magenta: "#ff00ff",
+    maroon: "#800000",
+    navy: "#000080",
+    olive: "#808000",
+    orange: "#ffa500",
+    pink: "#ffc0cb",
+    purple: "#800080",
+    violet: "#800080",
+    red: "#ff0000",
+    silver: "#c0c0c0",
+    white: "#ffffff",
+    yellow: "#ffff00"
+}
+
+nameToColor = (name) -> Colors.names[name]
+namesToColor = (names) -> names.map (name) -> nameToColor(name)
+generateColorRange = (firstColors) ->
+  colorRange = firstColors
+  for color of Colors.names
+    if color not in colorRange
+      colorRange.push color
+  return colorRange
+
 # Help with the placement of nodes
 RadialPlacement = () ->
   # stores the key -> location values
@@ -164,13 +220,22 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   # the group by artist layout.
   groupCenters = null
 
+  # used to list unique types of nodes for coloring purposes
+  typesOfNodes = new Set()
   # our force directed layout
   force = d3.layout.force()
+  assignedColors = ["black", "red", "orange", "yellow", "blue", "violet"]
+  colorRange = namesToColor(generateColorRange(assignedColors))
   # color function used to color nodes
-  nodeColors = d3.scale.category20()
+  nodeColors = d3.scale.ordinal()
+  .domain(["Wire", "SelectPrimitive", "MultiplyPrimitive", 
+  "SubtractPrimitive", "DividePrimitive", "PipeLine", "NegatePrimitive", "Register", "AndPrimitive", 
+  "IsGreaterOrEqualTo0Primitive", "Constant", "FeedbackInputNode", "DataAccessor", 
+  "SquareRootPrimitive", "AddPrimitive", "OneHotSelector", "FeedbackOutputNode", 
+  "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"])
+  .range(colorRange)
   # tooltip used to display details
   tooltip = Tooltip("vis-tooltip", 230)
-
   
   # charge used in artist layout
   charge = (node) -> -Math.pow(node.radius, 2.0)/chargeDivider
@@ -336,7 +401,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
         d.searched = true
       else
         d.searched = false
-        element.style("fill", (d) -> nodeColors(d.shape))
+        element.style("fill", (d) -> nodeColors(d.type))
           .style("stroke-width", 1.0)
 
   network.updateData = (newData) ->
@@ -387,12 +452,14 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
     logicCircleRadius = d3.scale.linear().range([1,20]).domain(logicSizeExtent)
 
     logicSizeMin = logicSizeExtent[0]   
-   
+
     data.nodes.forEach (n) ->
       # set initial x/y to values within the width/height
       # of the visualization
       n.x = randomnumber = Math.floor(Math.random()*width)
       n.y = randomnumber = Math.floor(Math.random()*height)
+      if n.type?
+        typesOfNodes.add(n.type)
       # add radius to the node so we can use it later
       if isRegister(n)
         size = if n.size? then parseInt(n.size, 10) else registerSizeMin
@@ -400,7 +467,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
       else
         size = if n.delay? then parseInt(n.delay, 10) else logicSizeMin
         n.radius = logicCircleRadius(size)
-    
+
+    console.log("types of nodes", typesOfNodes)
     # id's -> node objects
     nodesMap = mapNodes(data.nodes)
 
