@@ -63,9 +63,9 @@ Colors.names = {
     yellow: "#ffff00"
 }
 
-nameToColor = (name) -> Colors.names[name]
-namesToColor = (names) -> names.map (name) -> nameToColor(name)
-generateColorRange = (firstColors) ->
+nameToHexColor = (name) -> Colors.names[name]
+namesToHexColor = (names) -> names.map (name) -> nameToHexColor(name)
+padColorRange = (firstColors) ->
   colorRange = firstColors
   for color of Colors.names
     if color not in colorRange
@@ -224,16 +224,23 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   typesOfNodes = new Set()
   # our force directed layout
   force = d3.layout.force()
-  assignedColors = ["black", "red", "orange", "yellow", "blue", "violet"]
-  colorRange = namesToColor(generateColorRange(assignedColors))
-  # color function used to color nodes
-  nodeColors = d3.scale.ordinal()
-  .domain(["Wire", "SelectPrimitive", "MultiplyPrimitive", 
+  ###
+  node types:
+  "Wire", "SelectPrimitive", "MultiplyPrimitive", 
   "SubtractPrimitive", "DividePrimitive", "PipeLine", "NegatePrimitive", "Register", "AndPrimitive", 
   "IsGreaterOrEqualTo0Primitive", "Constant", "FeedbackInputNode", "DataAccessor", 
   "SquareRootPrimitive", "AddPrimitive", "OneHotSelector", "FeedbackOutputNode", 
-  "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"])
-  .range(colorRange)
+  "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"
+  ###
+  colorTable = {"Wire": "black", "SelectPrimitive": "red", "MultiplyPrimitive": "orange", 
+  "SubtractPrimitive": "yellow", "DividePrimitive": "green", "PipeLine": "blue", "NegatePrimitive": "indigo", "Register": "violet"}
+  
+  colorDomain = Object.keys(colorTable)
+  colorRange = colorDomain.map (nodeType) -> colorTable[nodeType]
+  colorRange = padColorRange(colorRange)
+  colorRange = namesToHexColor(colorRange)
+  # color function used to color nodes
+  nodeColors = d3.scale.ordinal().domain(colorDomain).range(colorRange)
   # tooltip used to display details
   tooltip = Tooltip("vis-tooltip", 230)
   
