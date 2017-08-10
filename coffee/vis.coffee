@@ -1,21 +1,15 @@
 root = exports ? this
 
-# determines the type of an object
-type = (obj) ->
-  if obj == undefined or obj == null
-    return String obj
-  classToType = {
-    '[object Boolean]': 'boolean',
-    '[object Number]': 'number',
-    '[object String]': 'string',
-    '[object Function]': 'function',
-    '[object Array]': 'array',
-    '[object Date]': 'date',
-    '[object RegExp]': 'regexp',
-    '[object Object]': 'object'
-  }
-  return classToType[Object.prototype.toString.call(obj)]
-
+###
+  node types:
+  "Wire", "SelectPrimitive", "MultiplyPrimitive", 
+  "SubtractPrimitive", "DividePrimitive", "PipeLine", "NegatePrimitive", "Register", "AndPrimitive", 
+  "IsGreaterOrEqualTo0Primitive", "Constant", "FeedbackInputNode", "DataAccessor", 
+  "SquareRootPrimitive", "AddPrimitive", "OneHotSelector", "FeedbackOutputNode", 
+  "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"
+  ###
+colorTable = {"Wire": "black", "SelectPrimitive": "red", "MultiplyPrimitive": "orange", 
+"SubtractPrimitive": "yellow", "DividePrimitive": "green", "PipeLine": "blue", "NegatePrimitive": "indigo", "Register": "violet"}
 Colors = {}
 Colors.names = {
     aqua: "#00ffff",
@@ -71,6 +65,24 @@ padColorRange = (firstColors) ->
     if color not in colorRange
       colorRange.push color
   return colorRange
+
+# determines the type of an object
+type = (obj) ->
+  if obj == undefined or obj == null
+    return String obj
+  classToType = {
+    '[object Boolean]': 'boolean',
+    '[object Number]': 'number',
+    '[object String]': 'string',
+    '[object Function]': 'function',
+    '[object Array]': 'array',
+    '[object Date]': 'date',
+    '[object RegExp]': 'regexp',
+    '[object Object]': 'object'
+  }
+  return classToType[Object.prototype.toString.call(obj)]
+
+
 
 # Help with the placement of nodes
 RadialPlacement = () ->
@@ -224,16 +236,6 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   typesOfNodes = new Set()
   # our force directed layout
   force = d3.layout.force()
-  ###
-  node types:
-  "Wire", "SelectPrimitive", "MultiplyPrimitive", 
-  "SubtractPrimitive", "DividePrimitive", "PipeLine", "NegatePrimitive", "Register", "AndPrimitive", 
-  "IsGreaterOrEqualTo0Primitive", "Constant", "FeedbackInputNode", "DataAccessor", 
-  "SquareRootPrimitive", "AddPrimitive", "OneHotSelector", "FeedbackOutputNode", 
-  "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"
-  ###
-  colorTable = {"Wire": "black", "SelectPrimitive": "red", "MultiplyPrimitive": "orange", 
-  "SubtractPrimitive": "yellow", "DividePrimitive": "green", "PipeLine": "blue", "NegatePrimitive": "indigo", "Register": "violet"}
   
   colorDomain = Object.keys(colorTable)
   colorRange = colorDomain.map (nodeType) -> colorTable[nodeType]
