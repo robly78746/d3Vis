@@ -1,0 +1,1 @@
+python typeFinder.py json
