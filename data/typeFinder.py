@@ -21,11 +21,16 @@ if len(sys.argv) == 2:
 	jsonFiles = filesWithExtensions(jsonFolderPath, [jsonFileExtension])
 	typesOfNodes = set()
 	for jsonFile in jsonFiles:
-		with open(jsonFolderPath + '/' + jsonFile) as data_file:    
-			data = json.load(data_file)
-			for node in data['nodes']:
-				if 'type' in node:
-					typesOfNodes.add(node['type'])
+		with open(jsonFolderPath + '/' + jsonFile) as data_file: 
+			try:
+				data = json.load(data_file)
+				if 'nodes' in data:
+					for node in data['nodes']:
+						if 'type' in node:
+							typesOfNodes.add(node['type'])
+			except:
+				print('An error occurred when reading ' + jsonFile)
+			
 	print(sorted(list(typesOfNodes)))
 	print("Number of types of nodes:", len(typesOfNodes))
 else:
