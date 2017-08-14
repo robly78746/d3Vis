@@ -233,7 +233,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   groupCenters = null
 
   # used to list unique types of nodes for coloring purposes
-  typesOfNodes = new Set()
+  #typesOfNodes = new Set()
+
   # our force directed layout
   force = d3.layout.force()
   
@@ -467,8 +468,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
       # of the visualization
       n.x = randomnumber = Math.floor(Math.random()*width)
       n.y = randomnumber = Math.floor(Math.random()*height)
-      if n.type?
-        typesOfNodes.add(n.type)
+      #if n.type? 
+      #  typesOfNodes.add(n.type)
       # add radius to the node so we can use it later
       if isRegister(n)
         size = if n.size? then parseInt(n.size, 10) else registerSizeMin
@@ -477,7 +478,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
         size = if n.delay? then parseInt(n.delay, 10) else logicSizeMin
         n.radius = logicCircleRadius(size)
 
-    console.log("types of nodes", typesOfNodes)
+    #console.log("types of nodes", typesOfNodes)
     # id's -> node objects
     nodesMap = mapNodes(data.nodes)
 

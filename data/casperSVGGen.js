@@ -1,4 +1,4 @@
-const exampleURL = 'http://localhost:8000/?graph=&layout=radial&movement=static&filter=all&sort=alpha&charge=1221&linkdistance=103&linkstrength=10&radius=44&layoutradius=285';
+const exampleURL = 'http://localhost:8000/?graph=TimingPathsNew%20(divide1).json&layout=radial&movement=static&filter=all&sort=alpha&charge=1221&linkdistance=103&linkstrength=10&linkcolor=%23999999&radius=44&layoutradius=285';
 var baseURLEndIndex = exampleURL.indexOf('graph=');
 var configStartIndex = exampleURL.indexOf('&layout');
 if (baseURLEndIndex < 0 || configStartIndex < 0)
