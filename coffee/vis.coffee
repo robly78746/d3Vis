@@ -7,9 +7,63 @@ root = exports ? this
   "IsGreaterOrEqualTo0Primitive", "Constant", "FeedbackInputNode", "DataAccessor", 
   "SquareRootPrimitive", "AddPrimitive", "OneHotSelector", "FeedbackOutputNode", 
   "ToFixedPointPrimitive", "IsGreaterOrEqualPrimitive", "AbsoluteValuePrimitive", "IsEqualPrimitive", "IsNotEqualTo0Primitive"
-  ###
-colorTable = {"Wire": "black", "SelectPrimitive": "red", "MultiplyPrimitive": "orange", 
-"SubtractPrimitive": "yellow", "DividePrimitive": "green", "PipeLine": "blue", "NegatePrimitive": "indigo", "Register": "violet"}
+###
+colorTable = {"AbsoluteValuePrimitive": "aqua",\
+  "AddPrimitive": "azure",\
+  "AndPrimitive": "beige",\
+  "ArrayIndexNode": "black",\
+  "CoercionNode": "beige",\
+  "ComplexToPolarPrimitive": "beige",\
+  "Constant": "white",\
+  "CosinePrimitive": "blue",\
+  "DataAccessor": "brown",\
+  "DecrementPrimitive": "azure",\
+  "DividePrimitive": "blue",\
+  "Dsp48Node": "green",\
+  "ExclusiveOrPrimitive": "beige",\
+  "FeedbackInputNode": "beige",\
+  "FeedbackOutputNode": "beige",\
+  "IncrementPrimitive": "azure",\
+  "InverseTangent2InputPrimitive": "blue",\
+  "IsEqualPrimitive": "azure",\
+  "IsEqualTo0Primitive": "azure",\
+  "IsGreaterOrEqualPrimitive": "azure",\
+  "IsGreaterOrEqualTo0Primitive": "azure",\
+  "IsGreaterPrimitive": "azure",\
+  "IsGreaterThan0Primitive": "azure",\
+  "IsLessOrEqualPrimitive": "azure",\
+  "IsLessOrEqualTo0Primitive": "azure",\
+  "IsLessPrimitive": "azure",\
+  "IsLessThan0Primitive": "azure",\
+  "IsNotEqualPrimitive": "azure",\
+  "IsNotEqualTo0Primitive": "azure",\
+  "LeftShiftRegister": "beige",\
+  "LutNode": "beige",\
+  "MaxAndMinPrimitive": "azure",\
+  "MultiplyPrimitive": "green",\
+  "NegatePrimitive": "azure",\
+  "NotExclusiveOrPrimitive": "beige",\
+  "OneHotSelector": "beige",\
+  "OrPrimitive": "beige",\
+  "PipeLine": "red",\
+  "PolarToComplexPrimitive": "blue",\
+  "PolarToReOrImPrimitive": "blue",\
+  "ReOrImToPolarPrimitive": "blue",\
+  "ReciprocalPrimitive": "blue",\
+  "Register": "red",\
+  "ReplaceArraySubsetNode",\
+  "RightShiftRegister": "beige",\
+  "RotatePrimitive": "beige",\
+  "ScaleByPowerOf2Primitive": "beige",\
+  "SelectPrimitive": "beige",\
+  "SineAndCosinePrimitive": "blue",\
+  "SinePrimitive": "blue",\
+  "SquareRootPrimitive": "blue",\
+  "SubtractPrimitive": "azure",\
+  "ToDoublePrecisionFloatPrimitive": "beige",\
+  "ToFixedPointPrimitive": "beige",\
+  "Wire": "lightblue"}
+
 Colors = {}
 Colors.names = {
     aqua: "#00ffff",
