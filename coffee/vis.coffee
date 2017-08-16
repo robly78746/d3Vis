@@ -287,7 +287,7 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
   groupCenters = null
 
   # used to list unique types of nodes for coloring purposes
-  typesOfNodes = new Set()
+  #typesOfNodes = new Set()
 
   # our force directed layout
   force = d3.layout.force()

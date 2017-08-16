@@ -1,56 +1,56 @@
 {
-  "links": [
-    {
-      "source": 1,
-      "key": 0,
-      "target": 3
-    },
-    {
-      "source": 2,
-      "key": 0,
-      "target": 1
-    },
-    {
-      "source": 2,
-      "key": 0,
-      "target": 4
-    },
-    {
-      "source": 3,
-      "key": 0,
-      "target": 0
-    },
-    {
-      "source": 4,
-      "key": 0,
-      "target": 3
-    }
-  ],
   "directed": true,
-  "graph": {
-    "edge": {},
-    "name": "subgraph_example",
-    "graph": {
-      "label": ""
-    },
-    "node": {}
-  },
   "multigraph": true,
   "nodes": [
     {
       "id": "d"
     },
     {
-      "id": "b"
+      "id": "c"
     },
     {
       "id": "a"
     },
     {
-      "id": "c"
+      "id": "f"
     },
     {
-      "id": "f"
+      "id": "b"
     }
-  ]
+  ],
+  "links": [
+    {
+      "key": 0,
+      "target": 0,
+      "source": 1
+    },
+    {
+      "key": 0,
+      "target": 3,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "target": 4,
+      "source": 2
+    },
+    {
+      "key": 0,
+      "target": 1,
+      "source": 3
+    },
+    {
+      "key": 0,
+      "target": 1,
+      "source": 4
+    }
+  ],
+  "graph": {
+    "node": {},
+    "edge": {},
+    "name": "subgraph_example",
+    "graph": {
+      "label": ""
+    }
+  }
 }

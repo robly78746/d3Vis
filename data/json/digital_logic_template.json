@@ -1,97 +1,97 @@
 {
+  "directed": false,
+  "multigraph": true,
+  "nodes": [
+    {
+      "size": "16",
+      "id": "adder2",
+      "type": "register"
+    },
+    {
+      "size": "8",
+      "id": "register3",
+      "type": "register"
+    },
+    {
+      "size": "8",
+      "id": "register1",
+      "type": "register"
+    },
+    {
+      "size": "1",
+      "id": "not1",
+      "type": "not"
+    },
+    {
+      "size": "8",
+      "id": "adder1",
+      "type": "adder"
+    },
+    {
+      "size": "8",
+      "id": "register2",
+      "type": "register"
+    }
+  ],
   "links": [
     {
-      "source": 0,
-      "delay": "5",
       "key": 0,
-      "target": 1
-    },
-    {
-      "source": 0,
       "delay": "30",
-      "key": 0,
-      "target": 5
-    },
-    {
       "source": 0,
-      "delay": "1",
-      "key": 0,
       "target": 2
     },
     {
-      "source": 1,
-      "delay": "5",
       "key": 0,
+      "delay": "40",
+      "source": 0,
+      "target": 1
+    },
+    {
+      "key": 0,
+      "delay": "70",
+      "source": 0,
+      "target": 5
+    },
+    {
+      "key": 0,
+      "delay": "1",
+      "source": 1,
       "target": 3
     },
     {
-      "source": 1,
+      "key": 0,
       "delay": "10",
-      "key": 0,
+      "source": 1,
       "target": 4
     },
     {
-      "source": 2,
+      "key": 0,
       "delay": "1",
+      "source": 2,
+      "target": 3
+    },
+    {
       "key": 0,
+      "delay": "5",
+      "source": 2,
       "target": 4
     },
     {
-      "source": 3,
-      "delay": "70",
       "key": 0,
-      "target": 5
-    },
-    {
+      "delay": "5",
       "source": 4,
-      "delay": "40",
-      "key": 0,
       "target": 5
     }
   ],
-  "directed": false,
   "graph": {
+    "node": {
+      "size": "",
+      "type": ""
+    },
     "edge": {
       "delay": ""
     },
     "name": "",
-    "graph": {},
-    "node": {
-      "size": "",
-      "type": ""
-    }
-  },
-  "multigraph": true,
-  "nodes": [
-    {
-      "size": "8",
-      "type": "register",
-      "id": "register1"
-    },
-    {
-      "size": "8",
-      "type": "adder",
-      "id": "adder1"
-    },
-    {
-      "size": "1",
-      "type": "not",
-      "id": "not1"
-    },
-    {
-      "size": "8",
-      "type": "register",
-      "id": "register2"
-    },
-    {
-      "size": "8",
-      "type": "register",
-      "id": "register3"
-    },
-    {
-      "size": "16",
-      "type": "register",
-      "id": "adder2"
-    }
-  ]
+    "graph": {}
+  }
 }
