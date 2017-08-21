@@ -683,15 +683,15 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
         copyOfNodes.splice(0, 1)
         numSteps = 0
         origin = nodesAtLevel[0]
-      temp = new Set()
+      temp = []
       
       nodesAtLevel.forEach (n) ->
         #if isRegister(n)
         #  console.log(numSteps, "steps from", origin.info, "to", n.info)
         nextNodes = breadthFirstStep(n, callback)
-        temp.add(nextNode) for nextNode in nextNodes
+        temp.push(nextNode) if nextNode not in temp for nextNode in nextNodes
       numSteps += 1
-      nodesAtLevel = if temp.size > 0 then Array.from(temp) else []
+      nodesAtLevel = if temp.size > 0 then temp else []
       #copyOfNodesIds = copyOfNodes.map (n) -> n.id
       #nodesAtLevelIds = nodesAtLevel.map (n) -> n.id
 
@@ -735,21 +735,23 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
         b.radius - a.radius
       regs = sortedNodes.map (n) -> n.id
     else if sort == "children"
-      visitedNodes = new Set()
+      visitedNodes = []
       nodesLeft = otherNodes.slice()
       curNode = nodesLeft[0]
       counts = {} # key: node id ; value: number of connections from regs to nodesLeft
-      regs = new Set()
+      regs = []
       localLinks = links.slice()
       while visitedNodes.size < otherNodes.length 
         newRegisters = findRegistersConnectedToNode(curNode, localLinks)
         #add unique registers to regs array
         newRegisters.forEach (n) ->
-          regs.add(n)
+          if n not in regs
+            regs.push(n)
         #remove node from nodesleft
         index = nodesLeft.indexOf(curNode)
         if index > -1
-          visitedNodes.add(curNode)
+          if curNode not in visitedNodes
+            visitedNodes.push(curNode)
           nodesLeft.splice(index, 1)
         if newRegisters > 0
           updateNodesConnectedToRegisters(counts, newRegisters, nodesLeft, localLinks)
@@ -758,8 +760,8 @@ Network = ({layout, movement, filter, sort, chargeDivider, linkDistanceMultiplie
         else 
           curNode = nodesLeft[0]
       nodes.forEach (n) ->
-        regs.add(n)
-      regs = Array.from(regs)
+        if n not in regs
+          regs.push(n)
       regs = regs.map (v) -> v.id
     else if sort == "random"
       sortedNodes = nodes.sort (a,b) ->
